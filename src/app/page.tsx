@@ -1,6 +1,13 @@
-import Homepage from './main/page'
+import HeroSection from "./components/sections/HeroSection/heroSection";
+import PopularFlights from "./components/sections/PopularFlights/popularFlight";
+import Offer from "./components/sections/Offer/Offer";
 export default function Home() {
   return (
-    <Homepage/>
+    <main>
+      {/* Section hero với CTA nổi bật */}
+      <HeroSection />
+      <PopularFlights />
+      <Offer/>
+    </main>
   );
 }

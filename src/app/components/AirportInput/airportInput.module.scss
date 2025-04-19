@@ -1,0 +1,111 @@
+.airportInput {
+    position: relative;
+    width: 100%;
+
+    label {
+        display: block;
+        color: var(--textColor);
+        font-weight: 500;
+        font-size: 13px;
+        padding-bottom: 0.4rem;
+    }
+
+    .icon {
+        font-size: 16px;
+        color: var(--PrimaryColor);
+        margin-right: 5px;
+    }
+
+    input {
+        width: 100%;
+        background: var(--inputColor);
+        border-radius: 10px;
+        border: none;
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 500;
+
+        &::placeholder {
+            font-size: 13px;
+            opacity: 0.5;
+            font-weight: 400;
+        }
+
+        &:focus {
+            outline: none;
+            border: 1px solid var(--PrimaryColor);
+        }
+    }
+
+    .suggestionsDropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 300px;
+        overflow-y: auto;
+        background: var(--whiteColor);
+        border: 1px solid var(--greyText);
+        border-radius: 0 0 10px 10px;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .suggestionItem {
+        padding: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--greyBg);
+        transition: background 0.2s;
+
+        &:hover {
+            background: var(--inputColor);
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .airportCode {
+            font-weight: bold;
+            min-width: 50px;
+            color: var(--PrimaryColor);
+            margin-right: 10px;
+        }
+
+        .airportInfo {
+            flex: 1;
+
+            .airportCityCountry {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2px;
+
+                .city {
+                    font-weight: 500;
+                }
+
+                .country {
+                    font-size: 12px;
+                    color: var(--textColor);
+                }
+            }
+
+            .airportName {
+                font-size: 12px;
+                color: var(--textColor);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+    .airportInput {
+        width: 100%;
+    }
+}

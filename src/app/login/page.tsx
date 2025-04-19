@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './Login.module.scss'; // Tạo file SCSS nếu cần
+import styles from './login.module.scss'; // Tạo file SCSS nếu cần
 
 const Login = () => {
   const [email, setEmail] = useState('');

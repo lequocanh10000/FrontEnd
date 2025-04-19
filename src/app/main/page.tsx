@@ -1,10 +1,14 @@
-export default function Home() {
+// src/app/main/page.tsx
+import HeroSection from "../components/sections/HeroSection/heroSection";
+import PopularFlights from "../components/sections/PopularFlights/popularFlight";
+import Offer from "../components/sections/Offer/Offer";
+
+export default function MainPage() {
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">Welcome to QAirline</h1>
-      <p>This is the homepage content</p>
+    <div className="main-page">
+      <HeroSection />
+      <PopularFlights />
+      <Offer/>
     </div>
   );
 }
-
- 

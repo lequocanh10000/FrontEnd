@@ -9,9 +9,10 @@
     --greyBg: hsl(0,0%,96%);
     --greyText:rgb(190,190,190);
     --inputColor:hsl(330,12%,97%);
-    /* box-shadow: 0 2px 8px 2px rgba(178,178,178, 0.45);  */
-
+    --containerPadding: 1.5rem;
+    --maxWidth: 1200px;
 }
+
 * {
     padding: 0;
     margin: 0;
@@ -19,7 +20,6 @@
     font-family: "Lexend", sans-serif;
     transition: .3s ease;
     text-decoration: none;
-
 }
 
 html,
@@ -28,6 +28,23 @@ body {
   overflow-x: hidden;
 }
 
+/* Container System */
+.container {
+  width: 100%;
+  padding-left: var(--containerPadding);
+  padding-right: var(--containerPadding);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive Container */
+@media (min-width: 768px) {
+  .container {
+    max-width: var(--maxWidth);
+  }
+}
+
+/* Layout System */
 .main-layout {
   display: flex;
   flex-direction: column;
@@ -36,4 +53,12 @@ body {
 
 .main-content {
   flex: 1;
+}
+
+/* Optional: Utility Classes */
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
