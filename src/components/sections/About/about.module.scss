@@ -1,0 +1,122 @@
+.about {
+    padding: 4rem 0 2rem;
+    
+
+    .secContainer{
+        .title {
+            color: var(--blackColor);
+            line-height: 1.5rem;
+            padding-bottom: 2rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .mainContent {
+            gap: 1rem;
+            margin-left: 1.5rem;
+            margin-right: 1.5rem;
+            display: grid;
+            align-items: center;
+
+            .singleItem {
+                text-align: center;
+
+                img {
+                    background: #a2ddf280;
+                    width: 100px;
+                    border-radius: 50%;
+                    padding: 1rem;
+                    height: auto;
+                }
+
+                h3 {
+                    font-weight: 700;
+                    color: var(--blackColor);
+                    padding: .5rem;
+                }
+
+                p {
+                    font-size: 15px;
+                    font-weight: 500;
+                    padding-bottom: .5rem;
+                    color: var(--textColor);
+
+                }
+            }
+        }
+
+        .videoCard {
+            margin-top: 2rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.73),
+                    rgba(0, 0, 0, 0.609)), url(../../../../public/Assets/image11.jpg);
+            border-radius: 1rem;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-left: 1.5rem;
+            margin-right: 1.5rem;
+
+            .cardContent {
+                gap: 2rem;
+                padding: 2rem 1rem;
+                display: grid;
+                align-items: center;
+
+                .cardText {
+                    h2 {
+                        color: var(--inputColor);
+                        line-height: 1.8rem;
+                    }
+
+                    p {
+                        color: var(--whiteColor);
+                        font-size: 15px;
+                        font-weight: 500;
+                        // letter-spacing: 1px;
+
+                    }
+                }
+
+                .cardVideo {
+                    border: 2px solid var(--whiteColor);
+                    height: 200px;
+                    width: 100%;
+                    border-radius: 10px;
+                    overflow: hidden;
+
+                    video {
+                        height: 100%;
+                        width: 100%;
+                        object-fit: cover;
+                    }
+
+                }
+
+            }
+
+            
+        }
+
+    }
+
+
+}
+@media screen and (min-width: 556px) {
+
+    .mainContent,
+    .singlePost {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 884px) {
+    .mainContent {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media screen and (min-width: 2560px) {
+    body {
+        zoom: 1.7;
+
+    }
+}
