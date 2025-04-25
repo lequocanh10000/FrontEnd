@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Lexend } from 'next/font/google';
 import './globals.css';
-import MainLayout from './main/layout';  // Thêm dòng này
-
+import Navbar from "../components/layout/Navbar/navbar";
+import Footer from "../components/layout/Footer/footer";
 const inter = Lexend({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <MainLayout>{children}</MainLayout>  {/* Bọc children bằng MainLayout */}
+        <Navbar />
+        <main className="flex-grow">{children}</main>
+        <Footer />
       </body>
     </html>
   );
