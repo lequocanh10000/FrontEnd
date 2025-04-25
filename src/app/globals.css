@@ -1,25 +1,28 @@
 /* src/app/globals.css */
+/* @import 'tailwindcss'; */
 :root {
-    --PrimaryColor: #15A3EF;
-    --HoverColor: #66C3F4;
-    --whiteColor:hsl(0,0%,100%);
-    --blackColor: hsl(0,0%,18%);
-    --textColor: hsl(240,1%,48%);
-    --whiteColorDeam:hsl(0,0%,93%);
-    --greyBg: hsl(0,0%,96%);
-    --greyText:rgb(190,190,190);
-    --inputColor:hsl(330,12%,97%);
-    --containerPadding: 1.5rem;
-    --maxWidth: 1200px;
+  --PrimaryColor: #15a3ef;
+  --HoverColor: #66c3f4;
+  --whiteColor: hsl(0, 0%, 100%);
+  --blackColor: hsl(0, 0%, 18%);
+  --textColor: hsl(240, 1%, 48%);
+  --whiteColorDeam: hsl(0, 0%, 93%);
+  --greyBg: hsl(0, 0%, 96%);
+  --greyText: rgb(190, 190, 190);
+  --inputColor: hsl(330, 12%, 97%);
+  --containerPadding: 1.5rem;
+  --maxWidth: 1200px;
+  --errorColor: #dc2626;
+  --successColor: #16a34a;
 }
 
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    font-family: "Lexend", sans-serif;
-    transition: .3s ease;
-    text-decoration: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Lexend", sans-serif;
+  transition: 0.3s ease;
+  text-decoration: none;
 }
 
 html,
