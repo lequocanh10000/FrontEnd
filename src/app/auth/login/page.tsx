@@ -3,41 +3,39 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import styles from "./login.module.scss";
+import { authService } from "@/api/services/authService";
+import { toast } from "react-toastify";
+import { loginSuccess } from "@/store/features/authSlice";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
-      // Gọi API đăng nhập
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await authService.login({ email, password });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Đăng nhập thành công, chuyển hướng
-        router.push("/dashboard");
-      } else {
-        setError(data.message || "Đăng nhập thất bại");
+      if (response.token) {
+        // Lưu vào localStorage
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        
+        // Cập nhật Redux store
+        dispatch(loginSuccess({ user: response.user, token: response.token }));
+        
+        toast.success('Đăng nhập thành công!');
+        router.push("/");
       }
-    } catch (err) {
-      setError("Có lỗi xảy ra khi đăng nhập");
-      console.error("Login error:", err);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Có lỗi xảy ra khi đăng nhập");
     } finally {
       setIsLoading(false);
     }
@@ -47,8 +45,6 @@ export default function LoginPage() {
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
         <h1 className={styles.title}>Đăng Nhập</h1>
-
-        {error && <div className={styles.errorMessage}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -93,7 +89,6 @@ export default function LoginPage() {
         </div>
 
         <button
-          // onClick={handleGoogleSignIn}
           className={styles.googleButton}
           disabled={isLoading}
           type="button"
@@ -103,7 +98,7 @@ export default function LoginPage() {
         </button>
 
         <div className={styles.links}>
-          <a href="/forgot-password" className={styles.link}>
+          <a href="/auth/forgot-password" className={styles.link}>
             Quên mật khẩu?
           </a>
           <a href="/auth/signup" className={styles.link}>

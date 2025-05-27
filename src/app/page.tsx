@@ -5,7 +5,9 @@ import Popular from "@/components/sections/Popular/popular";
 import Offer from "../components/sections/Offer/Offer";
 import About from "@/components/sections/About/about";
 import Blog from "@/components/sections/Blog/blog";
+import Review from "@/components/sections/Review/review";
 import JoinUs from "@/components/sections/JoinUs/joinUs";
+
 export default function Home() {
   return (
     <main>
@@ -15,7 +17,8 @@ export default function Home() {
       <Offer />
       <About/>
       <Blog />
-      <JoinUs/>
+      <Review/>
+      <JoinUs />
 
     </main>
   );

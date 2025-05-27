@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import styles from "./signup.module.scss";
 import img from "../../../../public/Assets/image3.jpg";
+import { authService } from "@/api/services/authService";
 
 export default function DangKyPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     hoTen: "",
     email: "",
     matKhau: "",
     nhapLaiMatKhau: "",
+    soDienThoai: "",
   });
 
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [apiError, setApiError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,6 +38,11 @@ export default function DangKyPage() {
       newErrors.email = "Vui lòng nhập email";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Email không hợp lệ";
+    }
+    if (!formData.soDienThoai.trim()) {
+      newErrors.soDienThoai = "Vui lòng nhập số điện thoại";
+    } else if (!/^[0-9]{10}$/.test(formData.soDienThoai)) {
+      newErrors.soDienThoai = "Số điện thoại phải có 10 chữ số";
     }
     if (!formData.matKhau) {
       newErrors.matKhau = "Vui lòng nhập mật khẩu";
@@ -52,15 +62,25 @@ export default function DangKyPage() {
     if (!validate()) return;
 
     setIsSubmitting(true);
+    setApiError("");
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Gọi API đăng ký
+      const registerData = {
+        email: formData.email,
+        password: formData.matKhau,
+        phone: formData.soDienThoai
+      };
+
+      await authService.register(registerData);
+      
       setSuccessMessage("Đăng ký thành công! Đang chuyển hướng...");
       setTimeout(() => {
-        window.location.href = "/";
+        router.push("/auth/login");
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Đăng ký thất bại:", error);
-      setErrors({ email: "Đăng ký thất bại. Vui lòng thử lại." });
+      setApiError(error.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
@@ -98,6 +118,10 @@ export default function DangKyPage() {
               <div className={styles.successMessage}>{successMessage}</div>
             ) : (
               <form onSubmit={handleSubmit} className={styles.form}>
+                {apiError && (
+                  <div className={styles.apiError}>{apiError}</div>
+                )}
+
                 <div className={styles.formGroup}>
                   <label htmlFor="hoTen" className={styles.label}>
                     Họ và tên
@@ -135,6 +159,26 @@ export default function DangKyPage() {
                   />
                   {errors.email && (
                     <span className={styles.error}>{errors.email}</span>
+                  )}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="soDienThoai" className={styles.label}>
+                    Số điện thoại
+                  </label>
+                  <input
+                    type="tel"
+                    id="soDienThoai"
+                    name="soDienThoai"
+                    value={formData.soDienThoai}
+                    onChange={handleChange}
+                    className={`${styles.input} ${
+                      errors.soDienThoai ? styles.errorInput : ""
+                    }`}
+                    placeholder="Nhập số điện thoại"
+                  />
+                  {errors.soDienThoai && (
+                    <span className={styles.error}>{errors.soDienThoai}</span>
                   )}
                 </div>
 
