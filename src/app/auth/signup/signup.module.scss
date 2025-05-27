@@ -21,12 +21,13 @@ $white: hsl(0, 0%, 100%);
 .container {
     min-height: 100vh;
     background-color: $light-gray;
+    //margin-bottom: 5%;
 }
 
 .gridContainer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 100vh;
+    height: 110vh;
     max-height: 1200px;
 
     @media (max-width: 1024px) {
@@ -100,6 +101,7 @@ $white: hsl(0, 0%, 100%);
     object-fit: cover;
 
 
+
     .signupCard {
         width: 100%;
         max-width: 420px;
@@ -107,6 +109,7 @@ $white: hsl(0, 0%, 100%);
     }
 
     .title {
+        margin-top: 5%;
         font-size: 2rem;
         color: black;
         margin-bottom: 2rem;
