@@ -1,0 +1,148 @@
+// src/app/auth/forgot-password/ForgotPassword.module.scss
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-image: url(../../../../public/Assets/image16.jpg);
+
+}
+
+.card {
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--blackColor);
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color:var(--textColor);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form {
+    margin-top: 1.5rem;
+}
+
+.inputGroup {
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+        outline: none;
+        border-color: var(--PrimaryColor);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    &::placeholder {
+        color: #aaa;
+    }
+}
+
+.submitButton {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color:var(--whiteColor);
+    background-color: var(--PrimaryColor);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #2563eb;
+    }
+
+    &:disabled {
+        background-color: #93c5fd;
+        cursor: not-allowed;
+    }
+}
+
+.error {
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: #b91c1c;
+    background-color: #fee2e2;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.backLink {
+    color: var(--PrimaryColor);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: var(--HoverColor);
+        text-decoration: underline;
+    }
+}
+
+.message {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.info {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+.resendButton {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 500;
+    text-decoration: underline;
+
+    &:hover {
+        color: #2563eb;
+    }
+}
