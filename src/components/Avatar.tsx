@@ -6,6 +6,7 @@ import { RootState } from '@/store/store';
 import { RxAvatar } from "react-icons/rx";
 import { LuTicket } from "react-icons/lu";
 import { LuLogOut } from "react-icons/lu";
+import { useRouter } from 'next/navigation';
 import styles from './Avatar.module.scss';
 
 interface AvatarProps {
@@ -16,6 +17,7 @@ const Avatar: React.FC<AvatarProps> = ({ onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -51,7 +53,13 @@ const Avatar: React.FC<AvatarProps> = ({ onLogout }) => {
           </div>
           <div className={styles.divider} />
           <div className={styles.menuItems}>
-            <button className={styles.menuItem}>
+            <button 
+              className={styles.menuItem}
+              onClick={() => {
+                router.push('/my_account');
+                setIsOpen(false);
+              }}
+            >
               <RxAvatar className={styles.icon} />
               <span>Thông tin tài khoản</span>
             </button>
