@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import styles from './acc_layout.module.scss';
+import Link from 'next/link';
+import styles from './bm_layout.module.scss';
 
-export default function AccountLayout({
+export default function BookingManagementLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,23 +13,18 @@ export default function AccountLayout({
 
   const tabs = [
     { 
-      id: 'info', 
-      label: 'Thông tin tài khoản', 
-      href: '/my_account',
-      active: pathname === '/account' || pathname === '/my_account'
+      id: 'bookingTab', 
+      label: 'Quản lý đặt vé', 
+      href: '/booking_management',
+      active: pathname === '/booking_management'
     },
     { 
-      id: 'history', 
-      label: 'Lịch sử hoạt động', 
-      href: '/my_account/history',
-      active: pathname === '/my_account/history'
+      id: 'checkIn', 
+      label: 'Làm thủ tục', 
+      href: '/booking_management/checkIn',
+      active: pathname === '/booking_management/checkIn'
     },
-    { 
-      id: 'password', 
-      label: 'Thay đổi mật khẩu', 
-      href: '/my_account/reset-password',
-      active: pathname === '/my_account/reset-password'
-    },
+    
   ];
 
   return (
@@ -39,7 +33,7 @@ export default function AccountLayout({
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>
-            THÔNG TIN TÀI KHOẢN
+            QUẢN LÝ VÉ
           </h1>
         </div>
       </header>
