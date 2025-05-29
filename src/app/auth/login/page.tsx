@@ -1,4 +1,3 @@
-// app/login/page.tsx
 "use client"; // Chỉ định đây là Client Component
 
 import { useState } from "react";
@@ -13,11 +12,52 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    general: ""
+  });
+  
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // Hàm validate form
+  const validateForm = () => {
+    const newErrors = {
+      email: "",
+      password: "",
+      general: ""
+    };
+
+    // Kiểm tra email
+    if (!email.trim()) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    // Kiểm tra password
+    if (!password.trim()) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    } else if (password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    setErrors(newErrors);
+    return !newErrors.email && !newErrors.password;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Reset lỗi trước khi validate
+    setErrors({ email: "", password: "", general: "" });
+    
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -35,9 +75,52 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (err: any) {
+      // Xử lý các loại lỗi khác nhau
+      if (err.response?.status === 401) {
+        setErrors(prev => ({
+          ...prev,
+          general: "Email hoặc mật khẩu không chính xác"
+        }));
+      } else if (err.response?.status === 404) {
+        setErrors(prev => ({
+          ...prev,
+          general: "Tài khoản không tồn tại"
+        }));
+      } else if (err.response?.status === 422) {
+        // Lỗi validation từ server
+        const serverErrors = err.response.data.errors;
+        if (serverErrors) {
+          setErrors(prev => ({
+            ...prev,
+            email: serverErrors.email?.[0] || "",
+            password: serverErrors.password?.[0] || ""
+          }));
+        }
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          general: err.response?.data?.message || "Có lỗi xảy ra khi đăng nhập"
+        }));
+      }
+      
       toast.error(err.response?.data?.message || "Có lỗi xảy ra khi đăng nhập");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Xóa lỗi khi user bắt đầu nhập lại
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: "" }));
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (errors.password) {
+      setErrors(prev => ({ ...prev, password: "" }));
     }
   };
 
@@ -45,6 +128,13 @@ export default function LoginPage() {
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
         <h1 className={styles.title}>Đăng Nhập</h1>
+
+        {/* Hiển thị lỗi chung */}
+        {errors.general && (
+          <div className={styles.errorMessage}>
+            {errors.general}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -55,10 +145,16 @@ export default function LoginPage() {
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
+              onChange={handleEmailChange}
+              className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
               required
             />
+            {/* Hiển thị lỗi email */}
+            {errors.email && (
+              <span className={styles.fieldError}>
+                {errors.email}
+              </span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -69,10 +165,16 @@ export default function LoginPage() {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
+              onChange={handlePasswordChange}
+              className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
               required
             />
+            {/* Hiển thị lỗi password */}
+            {errors.password && (
+              <span className={styles.fieldError}>
+                {errors.password}
+              </span>
+            )}
           </div>
 
           <button
