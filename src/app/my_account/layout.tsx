@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import styles from './account_layout.module.scss';
+import styles from './acc_layout.module.scss';
 
 export default function AccountLayout({
   children,
