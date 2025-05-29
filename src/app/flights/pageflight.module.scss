@@ -1,0 +1,76 @@
+.flightsPage {
+    background-size: cover;
+    background-repeat: no-repeat;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 2rem 1rem;
+    background-image: url(.././../../public/Assets/image15.jpg);
+
+    .secTitle {
+        margin-top: 5rem;
+        text-align: center;
+        color: var(--inputColor);
+        font-size: 30px;
+    }
+}
+
+.flightsContainer {
+
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.filterSidebar {
+    flex: 0 0 300px;
+
+}
+
+.flightResults {
+    flex: 1;
+    min-height: 400px;
+
+}
+
+.loadingState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    font-size: 1.2rem;
+    color: #666;
+
+}
+
+.noResults {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    text-align: center;
+    color: #666;
+    flex-direction: column;
+
+
+    h3 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    p {
+        max-width: 400px;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .flightsContainer {
+        flex-direction: column;
+    }
+
+    .filterSidebar {
+        flex: auto;
+        width: 100%;
+    }
+}
