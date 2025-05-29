@@ -1,102 +1,175 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from "./accountInfo.module.scss";
+import { userService, UserData } from '../../../api/services/userService';
+import { toast } from 'react-toastify';
 
 interface AccountData {
   memberId: string;
-  name: string;
+  username: string;
   email: string;
   phone: string;
-  address: string;
-  gender: string;
-  passport: string;
-  birthDate: string;
 }
 
 interface InfoRowProps {
   label: string;
   value: string;
   field: keyof AccountData;
-  type?: "text" | "email" | "tel" | "date" | "select";
-  options?: string[];
+  type?: "text" | "email" | "tel";
+  isEditing: boolean;
+  onInputChange: (field: keyof AccountData, value: string) => void;
 }
 
+// Tách InfoRow thành component riêng để tránh re-create
+const InfoRow = ({ label, value, field, type = "text", isEditing, onInputChange }: InfoRowProps) => (
+  <div className={styles.infoRow}>
+    <div className={styles.label}>{label}</div>
+    {isEditing && field !== 'memberId' ? (
+      <div className={styles.inputWrapper}>
+        <input
+          type={type}
+          className={styles.input}
+          value={value || ''}
+          onChange={(e) => onInputChange(field, e.target.value)}
+          placeholder={`Nhập ${label.toLowerCase()}`}
+        />
+      </div>
+    ) : (
+      <div className={styles.value}>
+        {value || '-'}
+      </div>
+    )}
+  </div>
+);
+
 export default function AccountInfo() {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [accountData, setAccountData] = useState<AccountData>({
-    memberId: 'JMUVz2qVUG2AXoNnV2VXZdq5g2',
-    name: 'Duyen Nguyen',
-    email: 'nguyenduyen.260903@gmail.com',
-    phone: '',
-    address: '',
-    gender: 'Nam',
-    passport: '',
-    birthDate: ''
+    memberId: '',
+    username: '',
+    email: '',
+    phone: ''
   });
 
   const [editData, setEditData] = useState<AccountData>({ ...accountData });
 
-  const handleInputChange = (field: keyof AccountData, value: string) => {
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        const userData = await userService.getUserInfo(token);
+        const newAccountData = {
+          memberId: userData.id || '',
+          username: userData.username || '',
+          email: userData.email || '',
+          phone: userData.phone || ''
+        };
+        
+        setAccountData(newAccountData);
+        setEditData(newAccountData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Không thể tải thông tin người dùng');
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
+
+  // Sử dụng useCallback để tránh tạo function mới mỗi lần render
+  const handleInputChange = useCallback((field: keyof AccountData, value: string) => {
     setEditData(prev => ({
       ...prev,
       [field]: value
     }));
+  }, []);
+
+  const validateData = (data: Partial<UserData>): boolean => {
+    if (!data.username || data.username.trim().length === 0) {
+      toast.error('Tên người dùng không được để trống');
+      return false;
+    }
+
+    if (!data.email || data.email.trim().length === 0) {
+      toast.error('Email không được để trống');
+      return false;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      toast.error('Email không đúng định dạng');
+      return false;
+    }
+
+    if (!data.phone || data.phone.trim().length === 0) {
+      toast.error('Số điện thoại không được để trống');
+      return false;
+    }
+
+    // Validate phone format (Vietnamese phone number)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(data.phone.replace(/\s+/g, ''))) {
+      toast.error('Số điện thoại phải có 10 chữ số');
+      return false;
+    }
+
+    return true;
   };
 
-  const handleSave = () => {
-    setAccountData({ ...editData });
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        router.push('/login');
+        return;
+      }
+
+      const userData: Partial<UserData> = {
+        username: editData.username.trim(),
+        email: editData.email.trim(),
+        phone: editData.phone.trim()
+      };
+
+      // Validate data before sending to server
+      if (!validateData(userData)) {
+        setIsLoading(false);
+        return;
+      }
+
+      await userService.updateUserInfo(Number(userId), userData, token);
+      setAccountData({ ...editData });
+      setIsEditing(false);
+      toast.success('Cập nhật thông tin thành công');
+    } catch (error: any) {
+      console.error('Error updating user data:', error);
+      const errorMessage = error.response?.data?.message || 'Không thể cập nhật thông tin';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setEditData({ ...accountData });
     setIsEditing(false);
   };
-
-  const InfoRow = ({ label, value, field, type = "text", options }: InfoRowProps) => (
-    <div className={styles.infoRow}>
-      <div className={styles.label}>{label}</div>
-      {isEditing && field !== 'memberId' ? (
-        <div className={styles.inputWrapper}>
-          {type === "select" ? (
-            <select
-              className={styles.input}
-              value={editData[field] || ''}
-              onChange={(e) => handleInputChange(field, e.target.value)}
-            >
-              <option value="">Chọn...</option>
-              {options?.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          ) : type === "date" ? (
-            <input
-              type="date"
-              className={styles.input}
-              value={editData[field] || ''}
-              onChange={(e) => handleInputChange(field, e.target.value)}
-            />
-          ) : (
-            <input
-              type={type}
-              className={styles.input}
-              value={editData[field] || ''}
-              onChange={(e) => handleInputChange(field, e.target.value)}
-              placeholder={`Nhập ${label.toLowerCase()}`}
-            />
-          )}
-        </div>
-      ) : (
-        <div className={styles.value}>
-          {field === 'birthDate' && value ? 
-            new Date(value).toLocaleDateString('vi-VN') : 
-            (value || '-')
-          }
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className={styles.accountInfo}>
@@ -115,49 +188,34 @@ export default function AccountInfo() {
           <InfoRow 
             label="Mã thẻ hội viên" 
             value={accountData.memberId} 
-            field="memberId" 
+            field="memberId"
+            isEditing={isEditing}
+            onInputChange={handleInputChange}
           />
           <InfoRow 
             label="Email" 
-            value={accountData.email} 
+            value={isEditing ? editData.email : accountData.email} 
             field="email" 
-            type="email" 
-          />
-          <InfoRow 
-            label="Số điện thoại" 
-            value={accountData.phone} 
-            field="phone" 
-            type="tel" 
-          />
-          <InfoRow 
-            label="Ngày sinh" 
-            value={accountData.birthDate} 
-            field="birthDate" 
-            type="date" 
+            type="email"
+            isEditing={isEditing}
+            onInputChange={handleInputChange}
           />
         </div>
         <div className={styles.rightColumn}>
           <InfoRow 
-            label="Họ và tên" 
-            value={accountData.name} 
-            field="name" 
+            label="Tên người dùng" 
+            value={isEditing ? editData.username : accountData.username} 
+            field="username"
+            isEditing={isEditing}
+            onInputChange={handleInputChange}
           />
           <InfoRow 
-            label="Địa chỉ" 
-            value={accountData.address} 
-            field="address" 
-          />
-          <InfoRow 
-            label="Giới tính" 
-            value={accountData.gender} 
-            field="gender" 
-            type="select"
-            options={['Nam', 'Nữ', 'Khác']}
-          />
-          <InfoRow 
-            label="Số hộ chiếu" 
-            value={accountData.passport} 
-            field="passport" 
+            label="Số điện thoại" 
+            value={isEditing ? editData.phone : accountData.phone} 
+            field="phone" 
+            type="tel"
+            isEditing={isEditing}
+            onInputChange={handleInputChange}
           />
         </div>
       </div>
@@ -168,14 +226,16 @@ export default function AccountInfo() {
             <button 
               className={styles.cancelBtn}
               onClick={handleCancel}
+              disabled={isLoading}
             >
               Hủy bỏ
             </button>
             <button 
               className={styles.saveBtn}
               onClick={handleSave}
+              disabled={isLoading}
             >
-              Lưu thông tin
+              {isLoading ? 'Đang lưu...' : 'Lưu thông tin'}
             </button>
           </div>
         ) : (
