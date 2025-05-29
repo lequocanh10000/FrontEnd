@@ -1,0 +1,166 @@
+// src/components/flight/flightHeader.module.scss
+.summaryContainer {
+    background-color: #fff; // Màu nền trắng cho container
+    border-radius: 10px; // Bo góc 10px để tạo giao diện mềm mại
+    padding: 1.5rem; // Khoảng cách bên trong container
+    margin-bottom: 2rem; // Khoảng cách với phần tử bên dưới
+    display: flex; // Sử dụng flexbox để căn chỉnh các phần tử
+    flex-wrap: wrap; // Cho phép các phần tử xuống dòng khi không đủ không gian
+    gap: 2rem; // Khoảng cách giữa các phần tử con
+    justify-content: space-between; // Căn chỉnh các phần tử con cách đều nhau
+    align-items: center; // Căn giữa các phần tử theo chiều dọc
+    margin-top: 5rem; // Khoảng cách với phần tử bên trên
+}
+
+.routeInfo {
+    flex: 1; // Chiếm hết không gian còn lại
+    min-width: 250px; // Độ rộng tối thiểu để đảm bảo hiển thị đẹp
+
+    .airportCodes {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.3rem;
+        font-weight: 650;
+        margin-bottom: 0.5rem;
+        color: var(--blackColor);
+
+        .arrow {
+            color: #999; // Màu xám cho mũi tên
+            font-size: 1.5rem;
+        }
+    }
+
+    // .airportNames {
+    //     display: flex;
+    //     align-items: center;
+    //     gap: 2rem;
+    //     color: #666; // Màu xám nhạt cho tên sân bay
+    //     font-size: 0.95rem;
+    // }
+}
+
+.tripDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+
+    .dateInfo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3rem;
+    }
+
+    .date,
+    .passengerInfo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .icon {
+            color: var(--PrimaryColor); // Sử dụng màu chính từ biến CSS
+            font-size: 18px;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+
+            .label {
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--blackColor);
+            }
+
+            .value {
+                font-size: 15px;
+                font-weight: 650;
+                color: var(--blackColor);
+            }
+        }
+    }
+}
+
+.editSearch {
+    background-color: transparent; // Nền trong suốt
+    border: 1px solid var(--HoverColor); // Viền sử dụng màu hover
+    color: var(--PrimaryColor); // Màu chữ sử dụng màu chính
+    padding: 0.6rem 1.2rem; // Khoảng cách bên trong nút
+    border-radius: 4px; // Bo góc nút
+    font-weight: 500; // Độ đậm của chữ
+    cursor: pointer; // Con trỏ chuột dạng pointer
+    font-size: 0.9rem; // Kích thước chữ
+    transition: all 0.2s ease; // Hiệu ứng chuyển động mượt mà
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &:hover {
+        background-color: #fff8f8; // Màu nền nhạt khi hover
+    }
+
+    .editIcon {
+        font-size: 1rem;
+    }
+}
+
+// Responsive styles
+@media (max-width: 556px) {
+    .summaryContainer {
+        flex-direction: column; // Chuyển layout thành dạng cột
+        align-items: flex-start; // Căn trái các phần tử
+        gap: 1.5rem; // Giảm khoảng cách giữa các phần tử
+    }
+
+
+    .routeInfo {
+        width: 100%; // Chiếm toàn bộ chiều rộng
+
+        .airportCodes {
+            font-size: 1.1rem;
+            font-weight: 650;
+
+        }
+    }
+
+    .tripDetails {
+        width: 100%; // Chiếm toàn bộ chiều rộng
+        flex-direction: column; // Chuyển layout thành dạng cột
+        gap: 1rem; // Giảm khoảng cách
+
+        .dateInfo {
+            flex-direction: column; // Chuyển layout thành dạng cột
+            gap: 1rem; // Giảm khoảng cách
+        }
+    }
+}
+
+// Animation for hover effects
+.airportCodes span {
+    position: relative;
+
+    &:after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--PrimaryColor);
+        transition: width 0.3s ease; // Hiệu ứng mở rộng đường gạch
+    }
+
+    &:hover:after {
+        width: 100%;
+    }
+}
+
+// Add some micro-interactions
+.date,
+.passengerInfo {
+    transition: transform 0.2s ease; // Hiệu ứng chuyển động mượt mà
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
