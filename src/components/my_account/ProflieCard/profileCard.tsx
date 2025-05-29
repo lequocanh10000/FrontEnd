@@ -30,7 +30,6 @@ export default function ProfileCard() {
         <div className={styles.memberInfo}>
           <div className={styles.memberDetails}>
             <span className={styles.memberLabel}>Thành viên</span>
-            <span className={styles.memberName}>Duyen Nguyen</span>
           </div>
           
         </div>

@@ -14,6 +14,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  
 
 
   @media (max-width: 768px) {
@@ -29,6 +30,8 @@
   width: 100%;
   max-width: 450px;
   animation: fadeIn 0.5s ease-in-out;
+  margin-top: 7%;
+  margin-bottom: 8%;
 
   @media (max-width: 480px) {
     padding: 1.5rem;
@@ -228,5 +231,36 @@
 
   &:last-child {
     margin-left: 1rem;
+  }
+}
+// Thêm vào file login.module.scss
+
+// Error message styles
+.errorMessage {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+// Field error styles
+.fieldError {
+  color: #c33;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+// Input error styles
+.inputError {
+  border-color: #c33 !important;
+
+  &:focus {
+    border-color: #c33 !important;
+    box-shadow: 0 0 0 2px rgba(204, 51, 51, 0.2) !important;
   }
 }
