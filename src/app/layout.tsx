@@ -4,6 +4,9 @@ import './globals.css';
 import Navbar from "../components/layout/Navbar/navbar";
 import Footer from "../components/layout/Footer/footer";
 import { Providers } from './providers';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const inter = Lexend({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -23,6 +26,18 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-grow">{children}</main>
           <Footer />
+          <ToastContainer
+            position="top-right"
+            autoClose={1500}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
         </Providers>
       </body>
     </html>
