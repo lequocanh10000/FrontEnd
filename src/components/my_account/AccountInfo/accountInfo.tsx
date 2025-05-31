@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./accountInfo.module.scss";
 import { userService, UserData } from "../../../api/services/userService";
 import { toast } from "react-toastify";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface AccountData {
   memberId: string;
@@ -61,12 +63,14 @@ export default function AccountInfo() {
   });
 
   const [editData, setEditData] = useState<AccountData>({ ...accountData });
+  
+  // Lấy token và user từ Redux store
+  const { token, user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        if (!token || !user) {
           router.push("/login");
           return;
         }
@@ -89,7 +93,7 @@ export default function AccountInfo() {
     };
 
     fetchUserData();
-  }, [router]);
+  }, [router, token, user]);
 
   // Sử dụng useCallback để tránh tạo function mới mỗi lần render
   const handleInputChange = useCallback(
@@ -105,14 +109,7 @@ export default function AccountInfo() {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
+      if (!token || !user) {
         router.push("/login");
         return;
       }
