@@ -92,14 +92,7 @@ const FlightList: React.FC<FlightListProps> = ({
         baggage: '1 x 23 kg',
         carryon: 'Không quá 12kg',
       },
-      {
-        name: 'Phổ Thông Linh Hoạt',
-        price: 1800000,
-        change: 'Phí đổi vé tối đa 430.000 VND mỗi hành khách',
-        refund: 'Phí hoàn vé tối đa 430.000 VND mỗi hành khách',
-        baggage: '1 x 23 kg',
-        carryon: 'Không quá 12kg',
-      },
+      
     ],
     business: [
       {
