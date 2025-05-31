@@ -50,7 +50,7 @@ export default function FlightsPage() {
             flight_id: flight.flight_id,
             flight_number: flight.flight_number,
             departure: {
-              airport: `Sân bay ${flight.departure_airport_id}`,
+              airport: ` ${flight.departureAirport.code}`,
               code: flight.departure_airport_id.toString(),
               time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
                 hour: '2-digit',
@@ -58,7 +58,7 @@ export default function FlightsPage() {
               })
             },
             arrival: {
-              airport: `Sân bay ${flight.destination_airport_id}`,
+              airport: ` ${flight.destinationAirport.code}`,
               code: flight.destination_airport_id.toString(),
               time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
                 hour: '2-digit',
