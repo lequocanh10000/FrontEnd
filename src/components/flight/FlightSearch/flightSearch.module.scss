@@ -208,3 +208,17 @@
         gap: 0.5rem;
     }
 }
+
+.errorMessage {
+    background: #fff3f3;
+    color: #dc3545;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid #dc3545;
+    font-size: 14px;
+}
+
+.icon {
+    font-size: 18px;
+}
