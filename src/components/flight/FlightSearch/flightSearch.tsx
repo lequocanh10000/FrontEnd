@@ -7,10 +7,15 @@ import { GoArrowSwitch, GoArrowRight } from "react-icons/go";
 import { useRouter } from "next/navigation";
 import AirportInput from "../../airportInput/airportInput";
 import styles from "./flightSearch.module.scss"; // You'll need to create this file
+import flightService from "@/api/services/flightService";
+import { toast } from "react-toastify";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FlightSearch = () => {
   const router = useRouter();
   const [tripType, setTripType] = useState<"round-trip" | "one-way">("round-trip");
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     from: "",
     to: "",
@@ -57,36 +62,43 @@ const FlightSearch = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // Additional validation
-    const today = getTodayDate();
-    if (formData.departDate < today) {
-      alert("Ngày đi không thể là ngày trong quá khứ!");
-      return;
-    }
+    try {
+      // Validate search parameters
+      const validation = flightService.validateSearchParams(formData);
+      if (!validation.isValid) {
+        validation.errors.forEach(error => toast.error(error));
+        return;
+      }
 
-    if (tripType === "round-trip" && formData.returnDate && formData.returnDate < formData.departDate) {
-      alert("Ngày về phải sau ngày đi!");
-      return;
+      // Call the API
+      const response = await flightService.searchFlights({
+        from: formData.from,
+        to: formData.to,
+        departDate: formData.departDate,
+        returnDate: tripType === "round-trip" ? formData.returnDate : undefined,
+        adults: formData.adults,
+        children: formData.children
+      });
+
+      if (response.success) {
+        // Store the search results in localStorage
+        localStorage.setItem('searchResults', JSON.stringify(response));
+        
+        // Navigate to results page
+        router.push(`/flights/results?from=${formData.from}&to=${formData.to}&date=${formData.departDate}`);
+      } else {
+        toast.error("Không tìm thấy chuyến bay phù hợp!");
+      }
+    } catch (error) {
+      console.error('Error searching flights:', error);
+      toast.error("Có lỗi xảy ra khi tìm kiếm chuyến bay!");
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Construct query parameters
-    const queryParams = new URLSearchParams();
-    queryParams.append("from", formData.from);
-    queryParams.append("to", formData.to);
-    queryParams.append("departDate", formData.departDate);
-    
-    if (tripType === "round-trip" && formData.returnDate) {
-      queryParams.append("returnDate", formData.returnDate);
-    }
-    
-    queryParams.append("adults", formData.adults.toString());
-    queryParams.append("children", formData.children.toString());
-    
-    // Navigate to flights page with search parameters
-    router.push(`/flights?${queryParams.toString()}`);
   };
 
   return (
@@ -189,10 +201,15 @@ const FlightSearch = () => {
           </div>
         </div>
         
-        <button type="submit" className={styles.searchBtn}>
-          Tìm chuyến bay
+        <button 
+          type="submit" 
+          className={styles.searchBtn}
+          disabled={isLoading}
+        >
+          {isLoading ? "Đang tìm kiếm..." : "Tìm chuyến bay"}
         </button>
       </form>
+      <ToastContainer />
     </div>
   );
 };
