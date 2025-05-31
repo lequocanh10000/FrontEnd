@@ -3,7 +3,7 @@ import { store } from '@/store/store';
 import { loginSuccess } from '@/store/features/authSlice';
 import type { User } from '@/store/features/authSlice';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export interface UserData {
     username: string;
