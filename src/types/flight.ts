@@ -33,23 +33,21 @@ export interface Flight {
 }
 
 export interface FlightSearchParams {
-    from: string;
-    to: string;
-    departDate: string;
+    fromAirport: string;
+    toAirport: string;
+    departureDate: string;
     returnDate?: string;
-    adults: number;
-    children: number;
+    tripType: 'roundTrip' | 'oneWay';
+    passengerCount: number;
 }
 
 export interface FlightSearchResponse {
     success: boolean;
-    count: number;
-    searchCriteria: {
-        from: number;
-        to: number;
-        departureDate: string;
-    };
+    message?: string;
     flights: Flight[];
+    total?: number;
+    page?: number;
+    limit?: number;
 }
 
 export interface PopularFlightsResponse {
