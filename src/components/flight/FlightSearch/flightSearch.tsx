@@ -1,20 +1,23 @@
 "use client"; // Required for client-side interactivity
 
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { FaPlaneDeparture, FaPlaneArrival, FaCalendarAlt } from "react-icons/fa";
 import { FiUsers } from "react-icons/fi";
 import { GoArrowSwitch, GoArrowRight } from "react-icons/go";
 import { useRouter } from "next/navigation";
 import AirportInput from "../../airportInput/airportInput";
-import styles from "./flightSearch.module.scss"; // You'll need to create this file
+import styles from "./flightSearch.module.scss";
 import flightService from "@/api/services/flightService";
 import { toast } from "react-toastify";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+type TripType = "round-trip" | "one-way";
+type ApiTripType = "roundTrip" | "oneWay";
+
 const FlightSearch = () => {
   const router = useRouter();
-  const [tripType, setTripType] = useState<"round-trip" | "one-way">("round-trip");
+  const [tripType, setTripType] = useState<TripType>("round-trip");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     from: "",
@@ -34,18 +37,20 @@ const FlightSearch = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if ((name === "from" || name === "to") && value.includes("(") && value.includes(")")) {
-      const codeMatch = value.match(/\(([A-Z]{3})\)/);
-      if (codeMatch) {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: codeMatch[1],
-        }));
-        return;
-      }
+    // Handle airport inputs - CẢI THIỆN XỬ LÝ AIRPORT CODE
+    if (name === "from" || name === "to") {
+      // Store the raw input value for display
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      
+      // Log để debug
+      console.log(`Airport input ${name}:`, value);
+      return;
     }
 
-    // Handle date validation
+    // Handle date validation - CẢI THIỆN XỬ LÝ DATE
     if (name === "departDate") {
       setFormData((prev) => ({
         ...prev,
@@ -56,49 +61,171 @@ const FlightSearch = () => {
       return;
     }
 
+    // Handle return date
+    if (name === "returnDate") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      return;
+    }
+
+    // Handle passenger counts
+    if (name === "adults" || name === "children") {
+      const numValue = parseInt(value) || 0;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: Math.max(0, Math.min(name === "adults" ? 9 : 8, numValue)),
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  // THÊM FUNCTION ĐỂ SWAP AIRPORTS
+  const handleSwapAirports = () => {
+    setFormData((prev) => ({
+      ...prev,
+      from: prev.to,
+      to: prev.from,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
+      // Convert tripType to API format
+      const apiTripType: ApiTripType = tripType === "round-trip" ? "roundTrip" : "oneWay";
+
+      // Extract airport codes using the service method
+      const fromAirportCode = flightService.normalizeAirportCode(formData.from);
+      const toAirportCode = flightService.normalizeAirportCode(formData.to);
+
+      // Log để debug airport codes
+      console.log('Raw from input:', formData.from);
+      console.log('Raw to input:', formData.to);
+      console.log('Extracted from code:', fromAirportCode);
+      console.log('Extracted to code:', toAirportCode);
+
+      // Validate extracted codes
+      if (!fromAirportCode || fromAirportCode.length !== 3) {
+        toast.error("Mã sân bay đi không hợp lệ. Vui lòng chọn lại.");
+        return;
+      }
+      
+      if (!toAirportCode || toAirportCode.length !== 3) {
+        toast.error("Mã sân bay đến không hợp lệ. Vui lòng chọn lại.");
+        return;
+      }
+
+      // Format the search parameters - CẢI THIỆN PARAMS
+      const searchParams = {
+        fromAirport: fromAirportCode,
+        toAirport: toAirportCode,
+        departureDate: formData.departDate,
+        tripType: apiTripType,
+        passengerCount: formData.adults + formData.children,
+        ...(apiTripType === "roundTrip" && formData.returnDate && {
+          returnDate: formData.returnDate
+        })
+      };
+
+      // Log the search parameters for debugging
+      console.log('Search Parameters:', searchParams);
+
       // Validate search parameters
-      const validation = flightService.validateSearchParams(formData);
+      const validation = flightService.validateSearchParams(searchParams);
       if (!validation.isValid) {
         validation.errors.forEach(error => toast.error(error));
         return;
       }
 
-      // Call the API
-      const response = await flightService.searchFlights({
-        from: formData.from,
-        to: formData.to,
-        departDate: formData.departDate,
-        returnDate: tripType === "round-trip" ? formData.returnDate : undefined,
-        adults: formData.adults,
-        children: formData.children
+      // Additional client-side validation
+      if (!fromAirportCode || !toAirportCode) {
+        toast.error("Vui lòng chọn đầy đủ điểm đi và điểm đến");
+        return;
+      }
+
+      if (fromAirportCode === toAirportCode) {
+        toast.error("Điểm đi và điểm đến không thể giống nhau");
+        return;
+      }
+
+      // Show loading toast
+      const loadingToast = toast.info("Đang tìm kiếm chuyến bay...", {
+        autoClose: false,
+        closeButton: false
       });
 
-      if (response.success) {
-        // Store the search results in localStorage
-        localStorage.setItem('searchResults', JSON.stringify(response));
+      // Call the API
+      const response = await flightService.searchFlights(searchParams);
+
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      console.log('Search response:', response);
+
+      // Check response structure
+      if (response && (response.success !== false)) {
+        // Store the search results - SỬA LẠI CÁCH LƯU DỮ LIỆU
+        const searchResultsData = {
+          searchParams,
+          results: response,
+          timestamp: new Date().toISOString()
+        };
         
-        // Navigate to results page
-        router.push(`/flights/results?from=${formData.from}&to=${formData.to}&date=${formData.departDate}`);
+        // Use sessionStorage instead of localStorage for better performance
+        sessionStorage.setItem('searchResults', JSON.stringify(searchResultsData));
+        
+        // Navigate to results page with search parameters
+        const queryString = new URLSearchParams({
+          from: fromAirportCode,
+          to: toAirportCode,
+          departDate: formData.departDate,
+          ...(apiTripType === "roundTrip" && formData.returnDate && {
+            returnDate: formData.returnDate
+          }),
+          tripType: apiTripType,
+          passengers: searchParams.passengerCount.toString()
+        }).toString();
+
+        toast.success("Tìm thấy chuyến bay!");
+        router.push(`/flights?${queryString}`);
       } else {
-        toast.error("Không tìm thấy chuyến bay phù hợp!");
+        toast.error(response?.message || "Không tìm thấy chuyến bay phù hợp!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error searching flights:', error);
-      toast.error("Có lỗi xảy ra khi tìm kiếm chuyến bay!");
+      
+      let errorMessage = "Có lỗi xảy ra khi tìm kiếm chuyến bay!";
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // THÊM VALIDATION CHO CLIENT-SIDE
+  const isFormValid = () => {
+    return (
+      formData.from.trim() !== "" &&
+      formData.to.trim() !== "" &&
+      formData.departDate !== "" &&
+      (tripType === "one-way" || formData.returnDate !== "") &&
+      (formData.adults + formData.children) > 0
+    );
   };
 
   return (
@@ -121,53 +248,69 @@ const FlightSearch = () => {
           </button>
         </div>
 
-        <AirportInput
-          label="Điểm đi"
-          icon={FaPlaneDeparture}
-          name="from"
-          value={formData.from}
-          onChange={handleInputChange}
-        />
-
-        <AirportInput
-          label="Điểm đến"
-          icon={FaPlaneArrival}
-          name="to"
-          value={formData.to}
-          onChange={handleInputChange}
-        />
-
-        <div className={styles.dateInput}>
-          <label htmlFor="departDate">
-            <FaCalendarAlt className={styles.icon} /> Ngày đi
-          </label>
-          <input
-            type="date"
-            id="departDate"
-            name="departDate"
-            value={formData.departDate}
+        
+          <AirportInput
+            label="Điểm đi"
+            icon={FaPlaneDeparture}
+            name="from"
+            value={formData.from}
             onChange={handleInputChange}
-            min={getTodayDate()}
-            required
+            placeholder="Chọn sân bay đi..."
           />
-        </div>
 
-        {tripType === "round-trip" && (
+          {/* THÊM NÚT SWAP
+          <button 
+            type="button" 
+            className={styles.swapButton}
+            onClick={handleSwapAirports}
+            title="Hoán đổi điểm đi và điểm đến"
+          >
+            <GoArrowSwitch />
+          </button> */}
+
+          <AirportInput
+            label="Điểm đến"
+            icon={FaPlaneArrival}
+            name="to"
+            value={formData.to}
+            onChange={handleInputChange}
+            placeholder="Chọn sân bay đến..."
+          />
+        
+
+        
           <div className={styles.dateInput}>
-            <label htmlFor="returnDate">
-              <FaCalendarAlt className={styles.icon} /> Ngày về
+            <label htmlFor="departDate">
+              <FaCalendarAlt className={styles.icon} /> Ngày đi
             </label>
             <input
               type="date"
-              id="returnDate"
-              name="returnDate"
-              value={formData.returnDate}
+              id="departDate"
+              name="departDate"
+              value={formData.departDate}
               onChange={handleInputChange}
-              min={formData.departDate || getTodayDate()}
-              required={tripType === "round-trip"}
+              min={getTodayDate()}
+              required
             />
           </div>
-        )}
+
+          {tripType === "round-trip" && (
+            <div className={styles.dateInput}>
+              <label htmlFor="returnDate">
+                <FaCalendarAlt className={styles.icon} /> Ngày về
+              </label>
+              <input
+                type="date"
+                id="returnDate"
+                name="returnDate"
+                value={formData.returnDate}
+                onChange={handleInputChange}
+                min={formData.departDate || getTodayDate()}
+                required={tripType === "round-trip"}
+              />
+            </div>
+          )}
+        
 
         <div className={styles.passengersDiv}>
           <label>
@@ -184,6 +327,7 @@ const FlightSearch = () => {
                 max="9"
                 value={formData.adults}
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className={styles.passengerType}>
@@ -203,13 +347,31 @@ const FlightSearch = () => {
         
         <button 
           type="submit" 
-          className={styles.searchBtn}
-          disabled={isLoading}
+          className={`${styles.searchBtn} ${!isFormValid() || isLoading ? styles.disabled : ''}`}
+          disabled={!isFormValid() || isLoading}
         >
-          {isLoading ? "Đang tìm kiếm..." : "Tìm chuyến bay"}
+          {isLoading ? (
+            <>
+              <span className={styles.loadingSpinner}></span>
+              Đang tìm kiếm...
+            </>
+          ) : (
+            "Tìm chuyến bay"
+          )}
         </button>
       </form>
-      <ToastContainer />
+      
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

@@ -174,7 +174,6 @@ const FlightList: React.FC<FlightListProps> = ({
                       {flight.departure.time}
                     </div>
                     <div className={styles.airportInfo}>
-                      <div className={styles.airportName}>{flight.departure.airport}</div>
                       <div className={styles.airportCode}>({flight.departure.code})</div>
                     </div>
                   </div>
@@ -196,7 +195,6 @@ const FlightList: React.FC<FlightListProps> = ({
                   <div className={styles.timeInfo}>
                     <div className={styles.arrivalTime}>{flight.arrival.time}</div>
                     <div className={styles.airportInfo}>
-                      <div className={styles.airportName}>{flight.arrival.airport}</div>
                       <div className={styles.airportCode}>({flight.arrival.code})</div>
                     </div>
                   </div>
