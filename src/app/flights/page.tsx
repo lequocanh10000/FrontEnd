@@ -19,7 +19,7 @@ export default function FlightsPage() {
   // Get search params
   const from = searchParams.get('from') || '';
   const to = searchParams.get('to') || '';
-  const departDate = searchParams.get('date') || '';
+  const departDate = searchParams.get('departDate') || '';
   const returnDate = searchParams.get('returnDate') || '';
   const adults = Number(searchParams.get('adults') || 1);
   const children = Number(searchParams.get('children') || 0);
@@ -32,13 +32,16 @@ export default function FlightsPage() {
 
         // If search parameters exist, use search API
         if (from && to && departDate) {
-          response = await flightService.searchFlights({
-            from,
-            to,
-            departDate,
-            adults,
-            children
-          });
+          const searchParamsForApi = {
+            fromAirport: from,
+            toAirport: to,
+            departureDate: departDate,
+            passengerCount: adults + children,
+            tripType: searchParams.get('tripType') as 'oneWay' | 'roundTrip',
+            ...(searchParams.get('tripType') === 'roundTrip' && returnDate && { returnDate: returnDate }),
+          };
+
+          response = await flightService.searchFlights(searchParamsForApi);
           setFlights(response.flights);
           setFilteredFlights(response.flights);
         } else {
@@ -50,16 +53,16 @@ export default function FlightsPage() {
             flight_id: flight.flight_id,
             flight_number: flight.flight_number,
             departure: {
-              airport: ` ${flight.departureAirport.code}`,
-              code: flight.departure_airport_id.toString(),
+              airport: flight.departureAirport?.name || '',
+              code: flight.departureAirport?.code || '',
               time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
                 hour: '2-digit',
                 minute: '2-digit'
               })
             },
             arrival: {
-              airport: ` ${flight.destinationAirport.code}`,
-              code: flight.destination_airport_id.toString(),
+              airport: flight.destinationAirport?.name || '',
+              code: flight.destinationAirport?.code || '',
               time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -69,17 +72,20 @@ export default function FlightsPage() {
             arrival_time: flight.arrival_time,
             duration: calculateDuration(flight.departure_time, flight.arrival_time),
             price: {
-              economy: parseInt(flight.price_economy),
-              business: parseInt(flight.price_business)
+              economy: parseFloat(flight.price_economy),
+              business: parseFloat(flight.price_business)
             },
             prices: {
-              economy: parseInt(flight.price_economy),
-              business: parseInt(flight.price_business)
+              economy: parseFloat(flight.price_economy),
+              business: parseFloat(flight.price_business)
             },
             seatsLeft: flight.available_seats,
             available_seats: flight.available_seats,
             status: flight.status,
-            route: flight.route
+            route: {
+              from: flight.departure_airport_id,
+              to: flight.destination_airport_id
+            }
           }));
           setFlights(transformedFlights);
           setFilteredFlights(transformedFlights);

@@ -1,0 +1,153 @@
+.flightBookingApp {
+    padding: 20px;
+    background-image: url(../../../../public/Assets/image11.jpg);
+    min-height: 100vh;
+    background-size: cover;
+    // background-position: center;
+    // background-repeat: no-repeat;
+
+
+    // Common styles for all steps
+    .stepContainer {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-bottom: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    // Header styles
+    .bookingHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e0e0e0;
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+    }
+
+    // Progress indicator
+    .progressBar {
+        display: flex;
+        max-width: 1200px;
+        margin: 8% auto 5% auto;
+        justify-content: space-between;
+       
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            padding: 0 16px;
+            text-align: center;
+
+            .stepNumber {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: #e0e0e0;
+                color: #666;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 8px;
+                font-weight: bold;
+            }
+
+            .stepLabel {
+                font-size: 14px;
+                color: #666;
+            }
+
+            &.active {
+                .stepNumber {
+                    background: #007bff;
+                    color: #fff;
+                }
+
+                .stepLabel {
+                    color: #007bff;
+                    font-weight: 500;
+                }
+            }
+
+            &.completed {
+                .stepNumber {
+                    background: #28a745;
+                    color: #fff;
+                }
+            }
+        }
+    }
+
+    // Button styles
+    .button {
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.primary {
+            background: #007bff;
+            color: #fff;
+            border: none;
+
+            &:hover {
+                background: #0056b3;
+            }
+        }
+
+        &.secondary {
+            background: #fff;
+            color: #007bff;
+            border: 1px solid #007bff;
+
+            &:hover {
+                background: #f8f9fa;
+            }
+        }
+    }
+
+    // Responsive styles
+    @media (max-width: 768px) {
+        padding: 12px;
+
+        .stepContainer {
+            padding: 16px;
+        }
+
+        .bookingHeader {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .progressBar {
+            .step {
+                .stepLabel {
+                    display: none;
+                }
+            }
+        }
+    }
+}

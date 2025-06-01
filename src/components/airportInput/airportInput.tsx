@@ -6,14 +6,16 @@ import { IconType } from "react-icons";
 import { airportService, Airport } from "@/api/services/airportService";
 import { toast } from "react-toastify";
 import { FaPlaneDeparture } from "react-icons/fa";
+import { ChangeEvent } from "react";
 
-interface AirportInputProps {
+export interface AirportInputProps {
   label: string;
   icon: IconType;
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (airport: Airport) => void;
+  placeholder?: string;
 }
 
 const AirportInput: React.FC<AirportInputProps> = ({
@@ -23,6 +25,7 @@ const AirportInput: React.FC<AirportInputProps> = ({
   value,
   onChange,
   onSelect,
+  placeholder,
 }) => {
   const [suggestions, setSuggestions] = useState<Airport[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -91,7 +94,7 @@ const AirportInput: React.FC<AirportInputProps> = ({
         name={name}
         value={inputValue}
         onChange={handleInputChange}
-        placeholder="Thành phố hoặc sân bay"
+        placeholder={placeholder}
         autoComplete="off"
         required
       />
