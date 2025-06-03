@@ -8,12 +8,23 @@ interface FilterProps {
     maxPrice: number;
     timeOfDay: string;
   }) => void;
+  initialFilters?: {
+    minPrice?: number;
+    maxPrice?: number;
+    timeOfDay?: string;
+  };
 }
 
-const FlightFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
-  const [priceRange, setPriceRange] = useState({ min: 100000, max: 4000000 });
-  const [selectedPriceRange, setSelectedPriceRange] = useState({ min: 100000, max: 4000000 });
-  const [timeOfDay, setTimeOfDay] = useState('all');
+const FlightFilter: React.FC<FilterProps> = ({ onFilterChange, initialFilters }) => {
+  const [priceRange, setPriceRange] = useState({ 
+    min: initialFilters?.minPrice || 100000, 
+    max: initialFilters?.maxPrice || 4000000 
+  });
+  const [selectedPriceRange, setSelectedPriceRange] = useState({ 
+    min: initialFilters?.minPrice || 100000, 
+    max: initialFilters?.maxPrice || 4000000 
+  });
+  const [timeOfDay, setTimeOfDay] = useState(initialFilters?.timeOfDay || 'all');
   
   // Time of day options
   const timeOptions = [
@@ -22,6 +33,21 @@ const FlightFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
     { id: 'afternoon', label: '12:00 - 17:59 Chiều', timeRange: '12:00 - 17:59' },
     { id: 'evening', label: '18:00 - 23:59 Tối', timeRange: '18:00 - 23:59' },
   ];
+
+  // Update local state when initialFilters change
+  useEffect(() => {
+    if (initialFilters) {
+      setPriceRange({
+        min: initialFilters.minPrice || 100000,
+        max: initialFilters.maxPrice || 4000000
+      });
+      setSelectedPriceRange({
+        min: initialFilters.minPrice || 100000,
+        max: initialFilters.maxPrice || 4000000
+      });
+      setTimeOfDay(initialFilters.timeOfDay || 'all');
+    }
+  }, [initialFilters]);
 
   const handlePriceRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
@@ -42,12 +68,13 @@ const FlightFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   };
 
   const handleResetFilters = () => {
-    setPriceRange({ min: 100000, max: 4000000 });
-    setSelectedPriceRange({ min: 100000, max: 4000000 });
+    const defaultPriceRange = { min: 100000, max: 4000000 };
+    setPriceRange(defaultPriceRange);
+    setSelectedPriceRange(defaultPriceRange);
     setTimeOfDay('all');
     onFilterChange({
-      minPrice: 100000,
-      maxPrice: 4000000,
+      minPrice: defaultPriceRange.min,
+      maxPrice: defaultPriceRange.max,
       timeOfDay: 'all',
     });
   };

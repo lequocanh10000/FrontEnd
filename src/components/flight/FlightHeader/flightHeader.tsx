@@ -14,6 +14,8 @@ interface FlightHeaderProps {
   departDate: string | null; // Ngày đi
   returnDate: string | null; // Ngày về
   passengers: number | null; // Số hành khách
+  adults?: number | null;
+  children?: number | null;
 }
 
 // Định nghĩa component FlightHeader nhận các props theo interface ở trên
@@ -23,6 +25,8 @@ const FlightHeader: React.FC<FlightHeaderProps> = ({
   departDate,
   returnDate,
   passengers,
+  adults,
+  children
 }) => {
   // Hàm chuyển đổi định dạng ngày từ YYYY-MM-DD sang DD/MM/YYYY
   const formatDate = (dateString: string | null) => {
@@ -31,22 +35,15 @@ const FlightHeader: React.FC<FlightHeaderProps> = ({
     return `${day}/${month}/${year}`; // Trả về định dạng DD/MM/YYYY
   };
 
-  // Hàm lấy tên sân bay từ mã sân bay
-  // const getAirportName = (code: string | null) => {
-  //   if (!code) return "N/A"; // Nếu không có mã thì trả về N/A
-    
-  //   // Danh sách mã sân bay và tên tương ứng
-  //   const airports: Record<string, string> = {
-  //     HAN: "Hà Nội",
-  //     SGN: "TP Hồ Chí Minh",
-  //     DAD: "Đà Nẵng",
-  //     PQC: "Phú Quốc",
-  //     CXR: "Nha Trang",
-  //     HUI: "Huế",
-  //   };
+  const formatPassengerCount = () => {
+    if (!passengers) return "N/A";
+    let text = `${passengers} hành khách`;
+    if (adults && children) {
+      text = `${adults} người lớn, ${children} trẻ em`;
+    }
+    return text;
+  };
 
-  //   return airports[code] || code; // Nếu có trong danh sách thì trả về tên, không thì trả về chính mã đó
-  // };
 
   // JSX trả về giao diện của component
   return (
@@ -82,7 +79,7 @@ const FlightHeader: React.FC<FlightHeaderProps> = ({
           <UsersIcon className={styles.icon} /> {/* Icon người dùng */}
           <div>
             <span className={styles.label}>Hành khách</span> {/* Nhãn hành khách */}
-            <span className={styles.value}>{passengers ? `${passengers} hành khách` : "N/A"}</span> {/* Số lượng hành khách hoặc N/A */}
+            <span className={styles.value}>{formatPassengerCount()}</span> {/* Số lượng hành khách hoặc N/A */}
           </div>
         </div>
       </div>

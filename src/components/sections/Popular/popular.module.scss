@@ -1,6 +1,6 @@
 .popular {
     padding-top: 15rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     margin-left: 1.5rem;
     margin-right: 1.5rem;
 
@@ -16,6 +16,7 @@
                 .secTitle {
                     color: var(--blackColor);
                     line-height: 1.8rem;
+                    margin-top: 1.5rem;
                     padding-bottom: .5rem;
 
                 }
@@ -230,7 +231,9 @@
     .popular {
         margin-top: 7rem;
         padding-top: 10rem;
+        
     }
+    
 }
 
 @media screen and (min-width: 556px) {
@@ -246,6 +249,7 @@
 
                 .textDiv {
                     text-align: center;
+                    
 
                 }
 

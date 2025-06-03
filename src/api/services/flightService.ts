@@ -8,6 +8,22 @@ interface FlightSearchParams {
     tripType: 'roundTrip' | 'oneWay';
     passengerCount: number;
     returnDate?: string; // Thêm returnDate cho roundtrip
+    page?: number;
+    limit?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    timeOfDay?: string;
+}
+
+interface PaginatedResponse {
+    success: boolean;
+    flights: Flight[];
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }
 
 class FlightService {
@@ -42,13 +58,20 @@ class FlightService {
                 toAirport: params.toAirport.trim().toUpperCase(),
                 departureDate: params.departureDate,
                 tripType: params.tripType,
-                passengerCount: params.passengerCount
+                passengerCount: params.passengerCount,
+                page: params.page || 1,
+                limit: params.limit || 10
             };
 
             // Thêm returnDate nếu là roundtrip
             if (params.tripType === 'roundTrip' && params.returnDate) {
                 apiParams.returnDate = params.returnDate;
             }
+
+            // Add filter parameters if they exist
+            if (params.minPrice) apiParams.minPrice = params.minPrice;
+            if (params.maxPrice) apiParams.maxPrice = params.maxPrice;
+            if (params.timeOfDay) apiParams.timeOfDay = params.timeOfDay;
 
             const response = await api.get('/flights/searchDes', {
                 params: apiParams,
@@ -262,6 +285,55 @@ class FlightService {
 
         // Return original if no pattern matches
         return trimmed;
+    }
+
+    // Lấy danh sách chuyến bay có phân trang
+    async getPaginatedFlights(page: number = 1, limit: number = 10, filters?: {
+        minPrice?: number;
+        maxPrice?: number;
+        timeOfDay?: string;
+    }): Promise<PaginatedResponse> {
+        try {
+            // Prepare filter parameters
+            const apiParams: any = {
+                page,
+                limit
+            };
+
+            // Add filter parameters if they exist
+            if (filters?.minPrice) apiParams.minPrice = filters.minPrice;
+            if (filters?.maxPrice) apiParams.maxPrice = filters.maxPrice;
+            if (filters?.timeOfDay) apiParams.timeOfDay = filters.timeOfDay;
+
+            console.log('Sending API request with params:', apiParams); // Debug log
+
+            const response = await api.get('/flights/paginated', {
+                params: apiParams
+            });
+
+            if (!response.data) {
+                throw new Error('Không nhận được dữ liệu từ server');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Error in getPaginatedFlights:', error);
+
+            if (error.response) {
+                if (error.response.status === 404) {
+                    throw new Error('Không tìm thấy dữ liệu chuyến bay');
+                } else if (error.response.status === 400) {
+                    throw new Error(error.response.data?.message || 'Thông tin phân trang không hợp lệ');
+                } else if (error.response.status === 500) {
+                    throw new Error('Lỗi server, vui lòng thử lại sau');
+                }
+                throw new Error(error.response.data?.message || 'Có lỗi xảy ra khi lấy danh sách chuyến bay');
+            } else if (error.request) {
+                throw new Error('Không thể kết nối đến server, vui lòng kiểm tra kết nối mạng');
+            } else {
+                throw new Error(error.message || 'Có lỗi không xác định xảy ra');
+            }
+        }
     }
 }
 

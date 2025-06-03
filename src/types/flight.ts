@@ -30,6 +30,8 @@ export interface Flight {
         from: number;
         to: number;
     };
+    aircraft_type?: string;
+    airline?: string;
 }
 
 export interface FlightSearchParams {
@@ -39,15 +41,20 @@ export interface FlightSearchParams {
     returnDate?: string;
     tripType: 'roundTrip' | 'oneWay';
     passengerCount: number;
+    adults?: number;
+    children?: number;
 }
 
 export interface FlightSearchResponse {
     success: boolean;
     message?: string;
     flights: Flight[];
-    total?: number;
-    page?: number;
-    limit?: number;
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }
 
 export interface PopularFlightsResponse {

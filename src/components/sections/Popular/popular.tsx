@@ -21,8 +21,8 @@ const Data = [
     destTitle: "Hồ Gươm",
     location: "Hà Nội",
     from: "Hồ Chí Minh đến Hà Nội",
-    date: "07/05/2025",
-    money: "1.567.000VND",
+    date: "08/06/2025",
+    money: "1.200.000VND",
     grade: "CULTURAL RELAX",
   },
   {
@@ -32,7 +32,7 @@ const Data = [
     location: "Huế",
     from: "Hồ Chí Minh đến Huế",
     date: "12/06/2025",
-    money: "1.135.000VND",
+    money: "1.100.000VND",
     grade: "CULTURAL RELAX",
   },
   {
@@ -41,8 +41,8 @@ const Data = [
     destTitle: "Đà Lạt",
     location: "Lâm Đồng",
     from: "Hồ Chí Minh đến Đà Lạt",
-    date: "17/04/2025",
-    money: "822.000VND",
+    date: "17/07/2025",
+    money: "850.000VND",
     grade: "CULTURAL RELAX",
   },
 
@@ -52,7 +52,7 @@ const Data = [
     destTitle: "Chùa Sensoji",
     location: "Tokyo",
     from: "Hồ Chí Minh đến Tokyo",
-    date: "22/05/2025",
+    date: "22/07/2025",
     money: "6.476.000VND",
     grade: "CULTURAL RELAX",
   },
@@ -63,7 +63,7 @@ const Data = [
     location: "Đà Nẵng",
     from: "Hà Nội đến Đà Nẵng",
     date: "19/06/2025",
-    money: "1.405.000VND",
+    money: "1.305.000VND",
     grade: "CULTURAL RELAX",
   },
   {
@@ -72,8 +72,8 @@ const Data = [
     destTitle: "Chợ Bến Thành",
     location: "Hồ Chí Minh",
     from: "Hà Nội đến Hồ Chí Minh",
-    date: "13/05/2025",
-    money: "1.567.000VND",
+    date: "16/07/2025",
+    money: "1.200.000VND",
     grade: "CULTURAL RELAX",
   },
   {
@@ -83,7 +83,7 @@ const Data = [
     location: "Kiên Giang",
     from: "Hà Nội đến Phú Quốc",
     date: "17/08/2025",
-    money: "1.329.000VND",
+    money: "1.599.000VND",
     grade: "CULTURAL RELAX",
   },
   {
@@ -180,7 +180,7 @@ const Popular = () => {
                       <p>{date}</p>
 
                       <div className={styles.priceRow}>
-                        <p className={styles.economyText}>Economy from</p>
+                        <p className={styles.economyText}>Phổ thông từ</p>
                         <h6>{money}</h6>
                       </div>
                     </div>
