@@ -1,8 +1,8 @@
 // src/app/account/page.tsx
 
 import styles from "./acc_page.module.scss";
-import ProfileCard from '../../components/my_account/ProflieCard/profileCard';
-import AccountInfo from '../../components/my_account/AccountInfo/accountInfo';
+import ProfileCard from '../../components/myAccount/ProflieCard/profileCard';
+import AccountInfo from '../../components/myAccount/AccountInfo/accountInfo';
 
 export default function AccountPage() {
   return (
