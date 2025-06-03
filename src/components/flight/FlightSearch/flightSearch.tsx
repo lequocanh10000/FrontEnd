@@ -9,8 +9,6 @@ import AirportInput from "../../airportInput/airportInput";
 import styles from "./flightSearch.module.scss";
 import flightService from "@/api/services/flightService";
 import { toast } from "react-toastify";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 type TripType = "round-trip" | "one-way";
 type ApiTripType = "roundTrip" | "oneWay";
@@ -131,6 +129,8 @@ const FlightSearch = () => {
         departureDate: formData.departDate,
         tripType: apiTripType,
         passengerCount: formData.adults + formData.children,
+        adults: formData.adults,
+        children: formData.children,
         ...(apiTripType === "roundTrip" && formData.returnDate && {
           returnDate: formData.returnDate
         })
@@ -192,11 +192,13 @@ const FlightSearch = () => {
             returnDate: formData.returnDate
           }),
           tripType: apiTripType,
-          passengers: searchParams.passengerCount.toString()
+          adults: formData.adults.toString(),
+          children: formData.children.toString(),
+          passengers: (formData.adults + formData.children).toString()
         }).toString();
 
-        toast.success("Tìm thấy chuyến bay!");
         router.push(`/flights?${queryString}`);
+        // toast.success("Tìm thấy chuyến bay!");
       } else {
         toast.error(response?.message || "Không tìm thấy chuyến bay phù hợp!");
       }
@@ -257,17 +259,6 @@ const FlightSearch = () => {
             onChange={handleInputChange}
             placeholder="Chọn sân bay đi..."
           />
-
-          {/* THÊM NÚT SWAP
-          <button 
-            type="button" 
-            className={styles.swapButton}
-            onClick={handleSwapAirports}
-            title="Hoán đổi điểm đi và điểm đến"
-          >
-            <GoArrowSwitch />
-          </button> */}
-
           <AirportInput
             label="Điểm đến"
             icon={FaPlaneArrival}
@@ -360,18 +351,6 @@ const FlightSearch = () => {
           )}
         </button>
       </form>
-      
-      <ToastContainer 
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </div>
   );
 };
