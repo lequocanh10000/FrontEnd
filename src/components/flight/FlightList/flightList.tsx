@@ -276,20 +276,44 @@ const FlightList: React.FC<FlightListProps> = ({
       <Modal open={!!selectedFlightForModal} onClose={handleCloseDetails}>
         {selectedFlightForModal && (
           <div className={styles.flightDetailCard}>
-            <ul>
-              <li>
-                <b>Thời gian bay dự kiến:</b> {selectedFlightForModal.duration}
-              </li>
-              <li>
-                <b>Số hiệu:</b> {selectedFlightForModal.flight_number}
-              </li>
-              <li>
-                <b>Khởi hành:</b> {selectedFlightForModal.departure.airport} ({selectedFlightForModal.departure.code}) lúc {selectedFlightForModal.departure.time}
-              </li>
-              <li>
-                <b>Đến:</b> {selectedFlightForModal.arrival.airport} ({selectedFlightForModal.arrival.code}) lúc {selectedFlightForModal.arrival.time}
-              </li>
-            </ul>
+            <h3 className={styles.detailTitle}>Chi tiết hành trình</h3>
+            <div className={styles.detailContent}>
+              <div className={styles.routeInfo}>
+                <div className={styles.airportInfo}>
+                  <div className={styles.time}>{selectedFlightForModal.departure.time}</div>
+                  <div className={styles.airportName}>{selectedFlightForModal.departure.airport}</div>
+                </div>
+                
+                <div className={styles.flightDuration}>
+                   <div className={styles.duration}>{selectedFlightForModal.duration}</div>
+                   <div className={styles.pathLine}></div>
+                </div>
+
+                <div className={styles.airportInfo}>
+                  <div className={styles.time}>{selectedFlightForModal.arrival.time}</div>
+                  <div className={styles.airportName}>{selectedFlightForModal.arrival.airport}</div>
+                </div>
+              </div>
+
+              <div className={styles.additionalDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Ngày khởi hành:</span>
+                  <span className={styles.detailValue}>3/6/2025</span>
+                </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Số hiệu chuyến bay:</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.flight_number}</span>
+                </div>
+                 <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Hãng hàng không:</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.airline || 'VietNam Airline'}</span>
+                </div>
+                 <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Loại máy bay:</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.aircraft_type || 'Airbus A320'}</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </Modal>

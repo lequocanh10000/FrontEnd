@@ -74,7 +74,7 @@
         margin-top: 0.3rem;
     }
 
-   
+
 }
 
 .flightPath {
@@ -131,7 +131,7 @@
     margin-left: 1rem;
 
     .detailsBtn {
-         margin-top: 2%;
+        margin-top: 2%;
         background: none;
         border: none;
         color: #15a3ef;
@@ -173,7 +173,7 @@
     margin-bottom: 0.2rem;
     box-shadow: none;
 
-  
+
 }
 
 .fareOption.economy {
@@ -373,7 +373,7 @@
     }
 
     .flightDetails {
-       
+
         margin-left: 0.6rem;
 
         .detailsBtn {
@@ -431,17 +431,6 @@
     animation: modalFadeIn 0.2s;
 }
 
-// @keyframes modalFadeIn {
-//     from {
-//         transform: translateY(40px) scale(0.98);
-//         opacity: 0;
-//     }
-
-//     to {
-//         transform: none;
-//         opacity: 1;
-//     }
-// }
 
 .closeBtn {
     position: absolute;
@@ -461,24 +450,124 @@
 }
 
 .flightDetailCard {
-    background: #f9f9f9;
-    border-radius: 8px;
-    margin: 0;
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    color: #222;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-}
+    padding: 1.5rem 2rem;
+    background: white;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
-.flightDetailCard ul {
-    margin: 0;
-    padding-left: 1.2rem;
-    list-style: disc;
-}
+    .detailTitle {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--PrimaryColor);
+        margin-bottom: 2rem;
+        text-align: left;
+    }
 
-.flightDetailCard li {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
+    .detailContent {
+        .routeInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+
+            .airportInfo {
+                text-align: left;
+                flex: 1;
+                padding-right: 1rem;
+
+                &:last-child {
+                    text-align: right;
+                    padding-right: 0;
+                    padding-left: 1rem;
+                }
+
+                .time {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: var(--blackColor);
+                    margin-bottom: 0.25rem;
+                }
+
+                .airportName {
+                    font-size: 0.9rem;
+                    color: var(--textColor);
+                }
+            }
+
+            .flightDuration {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                flex: 0 0 auto;
+                width: 120px;
+
+                .duration {
+                    font-size: 0.9rem;
+                    color: var(--textColor);
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.3rem;
+
+                    .icon {
+                        color: var(--textColor);
+                        font-size: 1rem;
+                    }
+                }
+
+                .pathLine {
+                    width: 100%;
+                    height: 2px;
+                    background: #66c3f4;
+                    position: relative;
+                    margin: 0.5rem 0;
+
+                    &::before {
+                        display: none;
+                    }
+
+                    &::after {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .additionalDetails {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+
+            .detailRow {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .detailLabel {
+                    color: var(--blackColor);
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    flex-basis: 150px;
+                    flex-shrink: 0;
+                }
+
+
+                .detailValue {
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    color: var(--blackColor);
+                    text-align: right;
+                    flex-grow: 1;
+                }
+            }
+        }
+    }
 }
 
 .fareDetailSection {
