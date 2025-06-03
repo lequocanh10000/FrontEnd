@@ -49,6 +49,10 @@ const removeLocalStorage = (key: string): void => {
 export const authService = {
     login: async (data: LoginData) => {
         const response = await api.post('/users/login', data);
+        if (response.data.token) {
+            setLocalStorage('token', response.data.token);
+            setLocalStorage('user', JSON.stringify(response.data.user));
+        }
         return response.data;
     },
 
@@ -65,7 +69,7 @@ export const authService = {
     getCurrentUser: (): User | null => {
         if (typeof window === 'undefined') return null;
 
-        const userStr = localStorage.getItem('user');
+        const userStr = getLocalStorage('user');
         if (userStr) {
             try {
                 return JSON.parse(userStr);
@@ -79,6 +83,33 @@ export const authService = {
 
     isAuthenticated: (): boolean => {
         if (typeof window === 'undefined') return false;
-        return !!localStorage.getItem('token');
+        const token = getLocalStorage('token');
+        return !!token;
+    },
+
+    getToken: (): string | null => {
+        return getLocalStorage('token');
+    },
+
+    refreshUserData: async () => {
+        const token = getLocalStorage('token');
+        if (!token) return null;
+
+        try {
+            const response = await api.get('/users/me', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.data) {
+                setLocalStorage('user', JSON.stringify(response.data));
+                return response.data;
+            }
+            return null;
+        } catch (error) {
+            console.error('[AuthService] Error refreshing user data:', error);
+            return null;
+        }
     }
 }; 
