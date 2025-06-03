@@ -15,6 +15,15 @@ export default function FlightsPage() {
   const [flights, setFlights] = useState<Flight[]>([]);
   const [filteredFlights, setFilteredFlights] = useState<Flight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalFlights, setTotalFlights] = useState(0);
+  const limit = 3;
+  const [filters, setFilters] = useState<{
+    minPrice?: number;
+    maxPrice?: number;
+    timeOfDay?: string;
+  }>({});
   
   // Get search params
   const from = searchParams.get('from') || '';
@@ -30,7 +39,14 @@ export default function FlightsPage() {
         setIsLoading(true);
         let response;
 
-        // If search parameters exist, use search API
+        // Prepare filter parameters
+        const filterParams = {
+          minPrice: filters.minPrice || undefined,
+          maxPrice: filters.maxPrice || undefined,
+          timeOfDay: filters.timeOfDay !== 'all' ? filters.timeOfDay : undefined
+        };
+
+        // If search parameters exist, use search API with pagination
         if (from && to && departDate) {
           const searchParamsForApi = {
             fromAirport: from,
@@ -39,57 +55,63 @@ export default function FlightsPage() {
             passengerCount: adults + children,
             tripType: searchParams.get('tripType') as 'oneWay' | 'roundTrip',
             ...(searchParams.get('tripType') === 'roundTrip' && returnDate && { returnDate: returnDate }),
+            page: currentPage,
+            limit: limit,
+            ...filterParams
           };
 
+          console.log('Search params:', searchParamsForApi); // Debug log
           response = await flightService.searchFlights(searchParamsForApi);
-          setFlights(response.flights);
-          setFilteredFlights(response.flights);
         } else {
-          // Otherwise, get all flights
-          const allFlights = await flightService.getAllFlights();
-          // Transform backend data to match Flight interface
-          const transformedFlights: Flight[] = allFlights.map((flight: any) => ({
-            id: flight.flight_id.toString(),
-            flight_id: flight.flight_id,
-            flight_number: flight.flight_number,
-            departure: {
-              airport: flight.departureAirport?.name || '',
-              code: flight.departureAirport?.code || '',
-              time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            },
-            arrival: {
-              airport: flight.destinationAirport?.name || '',
-              code: flight.destinationAirport?.code || '',
-              time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            },
-            departure_time: flight.departure_time,
-            arrival_time: flight.arrival_time,
-            duration: calculateDuration(flight.departure_time, flight.arrival_time),
-            price: {
-              economy: parseFloat(flight.price_economy),
-              business: parseFloat(flight.price_business)
-            },
-            prices: {
-              economy: parseFloat(flight.price_economy),
-              business: parseFloat(flight.price_business)
-            },
-            seatsLeft: flight.available_seats,
-            available_seats: flight.available_seats,
-            status: flight.status,
-            route: {
-              from: flight.departure_airport_id,
-              to: flight.destination_airport_id
-            }
-          }));
-          setFlights(transformedFlights);
-          setFilteredFlights(transformedFlights);
+          // Get paginated flights with filters
+          console.log('Filter params:', filterParams); // Debug log
+          response = await flightService.getPaginatedFlights(currentPage, limit, filterParams);
         }
+
+        const transformedFlights: Flight[] = response.flights.map((flight: any) => ({
+          id: flight.flight_id.toString(),
+          flight_id: flight.flight_id,
+          flight_number: flight.flight_number,
+          departure: {
+            airport: flight.departureAirport?.name || '',
+            code: flight.departureAirport?.code || '',
+            time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          },
+          arrival: {
+            airport: flight.destinationAirport?.name || '',
+            code: flight.destinationAirport?.code || '',
+            time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          },
+          departure_time: flight.departure_time,
+          arrival_time: flight.arrival_time,
+          duration: calculateDuration(flight.departure_time, flight.arrival_time),
+          price: {
+            economy: parseFloat(flight.price_economy) || 0,
+            business: parseFloat(flight.price_business) || 0
+          },
+          prices: {
+            economy: parseFloat(flight.price_economy) || 0,
+            business: parseFloat(flight.price_business) || 0
+          },
+          seatsLeft: flight.available_seats || 0,
+          available_seats: flight.available_seats || 0,
+          status: flight.status || 'scheduled',
+          route: {
+            from: flight.departure_airport_id,
+            to: flight.destination_airport_id
+          }
+        }));
+
+        setFlights(transformedFlights);
+        setFilteredFlights(transformedFlights);
+        setTotalFlights(response.pagination.total);
+        setTotalPages(response.pagination.totalPages);
       } catch (error) {
         console.error('Error loading flights:', error);
         toast.error('Có lỗi xảy ra khi tải danh sách chuyến bay');
@@ -99,48 +121,27 @@ export default function FlightsPage() {
     };
 
     loadFlights();
-  }, [from, to, departDate, adults, children]);
+  }, [from, to, departDate, adults, children, currentPage, filters]);
 
-  const applyFilters = (filters: any) => {
-    // Apply filters to the flights
-    let results = [...flights];
-    
-    // Price filter
-    if (filters.minPrice && filters.maxPrice) {
-      results = results.filter(
-        flight => flight.price.economy >= filters.minPrice && 
-                 flight.price.economy <= filters.maxPrice
-      );
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    // Time of day filter
-    if (filters.timeOfDay) {
-      const timeFilters = {
-        morning: (time: string) => {
-          const hour = parseInt(time.split(':')[0]);
-          return hour >= 0 && hour < 12;
-        },
-        afternoon: (time: string) => {
-          const hour = parseInt(time.split(':')[0]);
-          return hour >= 12 && hour < 18;
-        },
-        evening: (time: string) => {
-          const hour = parseInt(time.split(':')[0]);
-          return hour >= 18 && hour < 24;
-        },
-      };
-      
-      if (filters.timeOfDay !== 'all') {
-        results = results.filter(flight => 
-          timeFilters[filters.timeOfDay as keyof typeof timeFilters](flight.departure.time)
-        );
-      }
-    }
-    
-    setFilteredFlights(results);
   };
 
-  // Helper function to calculate flight duration
+  const applyFilters = (newFilters: {
+    minPrice: number;
+    maxPrice: number;
+    timeOfDay: string;
+  }) => {
+    console.log('Applying new filters:', newFilters); // Debug log
+    // Reset to first page when applying new filters
+    setCurrentPage(1);
+    // Store filters to be used in the next API call
+    setFilters(newFilters);
+  };
+
   const calculateDuration = (departureTime: string, arrivalTime: string) => {
     const departure = new Date(departureTime);
     const arrival = new Date(arrivalTime);
@@ -170,16 +171,55 @@ export default function FlightsPage() {
       
       <div className={styles.flightsContainer}>
         <aside className={styles.filterSidebar}>
-          <FlightFilter onFilterChange={applyFilters} />
+          <FlightFilter 
+            onFilterChange={applyFilters} 
+            initialFilters={filters}
+          />
         </aside>
         
         <main className={styles.flightResults}>
           {filteredFlights.length > 0 ? (
-            <FlightList 
-              flights={filteredFlights} 
-              isRoundTrip={!!returnDate}
-              passengers={adults + children}
-            />
+            <>
+              <FlightList 
+                flights={filteredFlights} 
+                isRoundTrip={!!returnDate}
+                passengers={adults + children}
+              />
+              
+              {/* Pagination */}
+              <div className={styles.pagination}>
+                <div className={styles.paginationInfo}>
+                  Hiển thị {((currentPage - 1) * limit) + 1} đến {Math.min(currentPage * limit, totalFlights)} trong tổng số {totalFlights} chuyến bay
+                </div>
+                <div className={styles.paginationControls}>
+                  <button
+                    className={`${styles.pageButton} ${currentPage === 1 ? styles.disabled : ''}`}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      className={`${styles.pageButton} ${currentPage === page ? styles.active : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    className={`${styles.pageButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
           ) : (
             <div className={styles.noResults}>
               <h2>Không tìm thấy chuyến bay phù hợp</h2>
