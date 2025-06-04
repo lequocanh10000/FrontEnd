@@ -37,12 +37,16 @@ interface PassengerInfoProps {
   flightDetails: FlightDetails;
   passengerCount: number;
   onSubmit: (passengers: PassengerData[]) => void;
+  isRoundTrip?: boolean;
+  returnFlightDetails?: FlightDetails;
 }
 
 const Passenger: React.FC<PassengerInfoProps> = ({
   flightDetails,
   passengerCount,
   onSubmit,
+  isRoundTrip,
+  returnFlightDetails,
 }) => {
   const [passengers, setPassengers] = useState<PassengerData[]>(
     Array.from({ length: passengerCount }, () => ({
@@ -56,6 +60,22 @@ const Passenger: React.FC<PassengerInfoProps> = ({
     }))
   );
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateIdNumber = (idNumber: string) => {
+    if (!/^\d{12}$/.test(idNumber)) {
+      return 'CCCD phải có đúng 12 số';
+    }
+    return '';
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    if (!/^\d{10}$/.test(phone)) {
+      return 'Số điện thoại phải có đúng 10 số';
+    }
+    return '';
+  };
+
   const handleInputChange = (
     passengerIndex: number,
     field: keyof PassengerData,
@@ -67,11 +87,49 @@ const Passenger: React.FC<PassengerInfoProps> = ({
       [field]: value,
     };
     setPassengers(updatedPassengers);
+
+    // Validate khi người dùng nhập
+    if (field === 'idNumber') {
+      const error = validateIdNumber(value);
+      setErrors(prev => ({
+        ...prev,
+        [`idNumber_${passengerIndex}`]: error
+      }));
+    } else if (field === 'phone') {
+      const error = validatePhoneNumber(value);
+      setErrors(prev => ({
+        ...prev,
+        [`phone_${passengerIndex}`]: error
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(passengers);
+    
+    // Validate tất cả các trường trước khi submit
+    const newErrors: { [key: string]: string } = {};
+    let hasError = false;
+
+    passengers.forEach((passenger, index) => {
+      const idError = validateIdNumber(passenger.idNumber);
+      const phoneError = validatePhoneNumber(passenger.phone);
+
+      if (idError) {
+        newErrors[`idNumber_${index}`] = idError;
+        hasError = true;
+      }
+      if (phoneError) {
+        newErrors[`phone_${index}`] = phoneError;
+        hasError = true;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (!hasError) {
+      onSubmit(passengers);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -143,12 +201,76 @@ const Passenger: React.FC<PassengerInfoProps> = ({
             </div>
           </div>
 
+          {/* Hiển thị thông tin chuyến bay về nếu là chuyến khứ hồi */}
+          {isRoundTrip && returnFlightDetails && (
+            <div className={styles.flightSummary} style={{ marginTop: '20px' }}>
+              <div className={styles.flightHeader}>
+                <h2 className={styles.flightTitle}>Chi tiết chuyến bay về</h2>
+                <span className={styles.flightNumber}>{returnFlightDetails.flightNumber}</span>
+              </div>
+
+              <div className={styles.flightTimes}>
+                <div className={styles.timeSection}>
+                  <div className={styles.time}>{returnFlightDetails.departure.time}</div>
+                  <div className={styles.code}>{returnFlightDetails.departure.code}</div>
+                </div>
+                
+                <div className={styles.flightIcon}>
+                  <FaArrowRight  />
+                </div>
+                
+                <div className={styles.timeSection}>
+                  <div className={styles.time}>{returnFlightDetails.arrival.time}</div>
+                  <div className={styles.code}>{returnFlightDetails.arrival.code}</div>
+                </div>
+              </div>
+
+              <div className={styles.flightDetails}>
+                <div className={styles.detail}>
+                  <span className={styles.detailIcon}><FaRegCalendarAlt /></span>
+                  <div>
+                    <div className={styles.detailLabel}>Ngày khởi hành</div>
+                    <div className={styles.detailValue}>{returnFlightDetails.date}</div>
+                  </div>
+                </div>
+                
+                <div className={styles.detail}>
+                  <span className={styles.detailIcon}><MdAccessTime /></span>
+                  <div>
+                    <div className={styles.detailLabel}>Thời gian bay</div>
+                    <div className={styles.detailValue}>{returnFlightDetails.duration}</div>
+                  </div>
+                </div>
+                
+                <div className={styles.detail}>
+                  <span className={styles.detailIcon}><IoPeople /></span>
+                  <div>
+                    <div className={styles.detailLabel}>Hành khách</div>
+                    <div className={styles.detailValue}>{returnFlightDetails.passengers}</div>
+                  </div>
+                </div>
+                
+                <div className={styles.detail}>
+                  <span className={styles.detailIcon}><MdPayment /></span>
+                  <div>
+                    <div className={styles.detailLabel}>Phương thức thanh toán</div>
+                    <div className={styles.detailValue}>{returnFlightDetails.paymentMethod}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className={styles.totalSection}>
             <div className={styles.totalLabel}>
               Tổng cộng<br />
               <span className={styles.totalSubtext}>Đã bao gồm thuế và phí</span>
             </div>
-            <div className={styles.totalPrice}>{formatPrice(flightDetails.price)}</div>
+            <div className={styles.totalPrice}>
+              {formatPrice(isRoundTrip && returnFlightDetails 
+                ? flightDetails.price + returnFlightDetails.price 
+                : flightDetails.price)}
+            </div>
           </div>
 
           <div className={styles.actionButtons}>
@@ -172,12 +294,16 @@ const Passenger: React.FC<PassengerInfoProps> = ({
                     <label className={styles.label}>Số CCCD</label>
                     <input
                       type="text"
-                      className={styles.input}
+                      className={`${styles.input} ${errors[`idNumber_${index}`] ? styles.inputError : ''}`}
                       value={passenger.idNumber}
                       onChange={(e) => handleInputChange(index, 'idNumber', e.target.value)}
                       placeholder="123456789012"
                       required
+                      maxLength={12}
                     />
+                    {errors[`idNumber_${index}`] && (
+                      <span className={styles.errorMessage}>{errors[`idNumber_${index}`]}</span>
+                    )}
                   </div>
                   
                   <div className={styles.formGroup}>
@@ -210,12 +336,16 @@ const Passenger: React.FC<PassengerInfoProps> = ({
                     <label className={styles.label}>Số điện thoại</label>
                     <input
                       type="tel"
-                      className={styles.input}
+                      className={`${styles.input} ${errors[`phone_${index}`] ? styles.inputError : ''}`}
                       value={passenger.phone}
                       onChange={(e) => handleInputChange(index, 'phone', e.target.value)}
                       placeholder="0987654321"
                       required
+                      maxLength={10}
                     />
+                    {errors[`phone_${index}`] && (
+                      <span className={styles.errorMessage}>{errors[`phone_${index}`]}</span>
+                    )}
                   </div>
                 </div>
 
