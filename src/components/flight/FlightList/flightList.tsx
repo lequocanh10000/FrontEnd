@@ -298,7 +298,7 @@ const FlightList: React.FC<FlightListProps> = ({
               <div className={styles.additionalDetails}>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Ngày khởi hành:</span>
-                  <span className={styles.detailValue}>3/6/2025</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.departure_date }</span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Số hiệu chuyến bay:</span>
@@ -306,11 +306,11 @@ const FlightList: React.FC<FlightListProps> = ({
                 </div>
                  <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Hãng hàng không:</span>
-                  <span className={styles.detailValue}>{selectedFlightForModal.airline || 'VietNam Airline'}</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.airline}</span>
                 </div>
                  <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Loại máy bay:</span>
-                  <span className={styles.detailValue}>{selectedFlightForModal.aircraft_type || 'Airbus A320'}</span>
+                  <span className={styles.detailValue}>{selectedFlightForModal.aircraft_type}</span>
                 </div>
               </div>
             </div>

@@ -68,45 +68,53 @@ export default function FlightsPage() {
           response = await flightService.getPaginatedFlights(currentPage, limit, filterParams);
         }
 
-        const transformedFlights: Flight[] = response.flights.map((flight: any) => ({
-          id: flight.flight_id.toString(),
-          flight_id: flight.flight_id,
-          flight_number: flight.flight_number,
-          departure: {
-            airport: flight.departureAirport?.name || '',
-            code: flight.departureAirport?.code || '',
-            time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          },
-          arrival: {
-            airport: flight.destinationAirport?.name || '',
-            code: flight.destinationAirport?.code || '',
-            time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          },
-          departure_time: flight.departure_time,
-          arrival_time: flight.arrival_time,
-          duration: calculateDuration(flight.departure_time, flight.arrival_time),
-          price: {
-            economy: parseFloat(flight.price_economy) || 0,
-            business: parseFloat(flight.price_business) || 0
-          },
-          prices: {
-            economy: parseFloat(flight.price_economy) || 0,
-            business: parseFloat(flight.price_business) || 0
-          },
-          seatsLeft: flight.available_seats || 0,
-          available_seats: flight.available_seats || 0,
-          status: flight.status || 'scheduled',
-          route: {
-            from: flight.departure_airport_id,
-            to: flight.destination_airport_id
-          }
-        }));
+        const transformedFlights: Flight[] = response.flights.map((flight: any) => {
+          console.log('Original flight data:', flight); // Debug log
+          const transformed = {
+            id: flight.flight_id.toString(),
+            flight_id: flight.flight_id,
+            flight_number: flight.flight_number,
+            departure: {
+              airport: flight.departureAirport?.name || '',
+              code: flight.departureAirport?.code || '',
+              time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            },
+            arrival: {
+              airport: flight.destinationAirport?.name || '',
+              code: flight.destinationAirport?.code || '',
+              time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            },
+            departure_time: flight.departure_time,
+            arrival_time: flight.arrival_time,
+            duration: calculateDuration(flight.departure_time, flight.arrival_time),
+            price: {
+              economy: parseFloat(flight.price_economy) || 0,
+              business: parseFloat(flight.price_business) || 0
+            },
+            prices: {
+              economy: parseFloat(flight.price_economy) || 0,
+              business: parseFloat(flight.price_business) || 0
+            },
+            seatsLeft: flight.available_seats || 0,
+            available_seats: flight.available_seats || 0,
+            status: flight.status || 'scheduled',
+            route: {
+              from: flight.departure_airport_id,
+              to: flight.destination_airport_id
+            },
+            departure_date: flight.departure_date,
+            aircraft_type: flight.aircraft_type,
+            airline: flight.airline
+          };
+          console.log('Transformed flight data:', transformed); // Debug log
+          return transformed;
+        });
 
         setFlights(transformedFlights);
         setFilteredFlights(transformedFlights);
