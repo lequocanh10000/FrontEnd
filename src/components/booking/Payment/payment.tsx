@@ -2,13 +2,15 @@ import React from 'react';
 import styles from './payment.module.scss';
 
 interface PaymentSuccessProps {
-  bookingCode?: string;
+  bookingCode: string;
   onReturnHome: () => void;
+  isRoundTrip?: boolean;
 }
 
 const Payment: React.FC<PaymentSuccessProps> = ({
   bookingCode = "ABC123",
   onReturnHome,
+  isRoundTrip,
 }) => {
   return (
     <div className={styles.container}>

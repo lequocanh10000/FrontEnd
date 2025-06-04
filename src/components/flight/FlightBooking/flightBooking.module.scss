@@ -40,7 +40,7 @@
         max-width: 1200px;
         margin: 8% auto 5% auto;
         justify-content: space-between;
-       
+
         position: relative;
 
         &::before {
@@ -147,6 +147,37 @@
                 .stepLabel {
                     display: none;
                 }
+            }
+        }
+    }
+}
+
+.seatButtonContainer {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 0 20px;
+
+    .button {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.primary {
+            background-color: #15a3ef;
+            color: white;
+            border: none;
+
+            &:hover {
+                background-color: #0d8cd9;
+            }
+
+            &:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
             }
         }
     }

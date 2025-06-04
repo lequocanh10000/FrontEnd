@@ -5,14 +5,18 @@ import { PassengerData, FlightDetails } from '../Passenger/passenger'; // Import
 interface ReviewBookingProps {
   passengerData: PassengerData[];
   selectedSeats: string[];
-  flightDetails: FlightDetails; // Thông tin chuyến bay
-  onConfirm: () => void; // Hàm xử lý khi user xác nhận
+  flightDetails: FlightDetails;
+  returnFlightDetails?: FlightDetails;
+  isRoundTrip?: boolean;
+  onConfirm: () => void;
 }
 
 const ReviewBooking: React.FC<ReviewBookingProps> = ({
   passengerData,
   selectedSeats,
   flightDetails,
+  returnFlightDetails,
+  isRoundTrip,
   onConfirm,
 }) => {
   return (
@@ -51,14 +55,35 @@ const ReviewBooking: React.FC<ReviewBookingProps> = ({
       </div>
 
       {/* Hiển thị thông tin chuyến bay */}
-      <div className={styles.reviewSection} style={{ marginTop: '20px' }}> {/* Cần style lại */} 
-        <h3>Thông tin chuyến bay:</h3>
+      <div className={styles.reviewSection} style={{ marginTop: '20px' }}> 
+        <h3>Thông tin chuyến bay đi:</h3>
         <p>Chuyến bay: {flightDetails.flightNumber}</p>
         <p>Điểm đi: {flightDetails.departure.code}</p>
         <p>Điểm đến: {flightDetails.arrival.code}</p>
         <p>Ngày: {flightDetails.date}</p>
-        <p>Tổng tiền: {flightDetails.price.toLocaleString('vi-VN')} VND</p>
-        {/* Hiển thị thêm các thông tin khác nếu cần */}
+        <p>Giá vé: {flightDetails.price.toLocaleString('vi-VN')} VND</p>
+      </div>
+
+      {/* Hiển thị thông tin chuyến bay về nếu là chuyến khứ hồi */}
+      {isRoundTrip && returnFlightDetails && (
+        <div className={styles.reviewSection} style={{ marginTop: '20px' }}>
+          <h3>Thông tin chuyến bay về:</h3>
+          <p>Chuyến bay: {returnFlightDetails.flightNumber}</p>
+          <p>Điểm đi: {returnFlightDetails.departure.code}</p>
+          <p>Điểm đến: {returnFlightDetails.arrival.code}</p>
+          <p>Ngày: {returnFlightDetails.date}</p>
+          <p>Giá vé: {returnFlightDetails.price.toLocaleString('vi-VN')} VND</p>
+        </div>
+      )}
+
+      {/* Hiển thị tổng tiền */}
+      <div className={styles.reviewSection} style={{ marginTop: '20px' }}>
+        <h3>Tổng tiền:</h3>
+        <p className={styles.totalPrice}>
+          {(isRoundTrip && returnFlightDetails 
+            ? flightDetails.price + returnFlightDetails.price 
+            : flightDetails.price).toLocaleString('vi-VN')} VND
+        </p>
       </div>
 
       {/* Nút xác nhận để chuyển sang bước thanh toán */}
