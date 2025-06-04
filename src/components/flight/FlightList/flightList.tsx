@@ -1,5 +1,5 @@
 // src/components/flight/flightList.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./flightList.module.scss";
 import { FaClock, FaPlane } from "react-icons/fa";
 import { FiInfo } from "react-icons/fi";
@@ -13,12 +13,27 @@ import { BsFillHandbagFill } from "react-icons/bs";
 
 interface FlightListProps {
   flights: Flight[];
+  returnFlights?: Flight[]; // Thêm prop cho chuyến bay về
   isRoundTrip: boolean;
   passengers: number;
   onSelect?: (flight: Flight, fareType: 'economy' | 'business', fareDetails?: any) => void;
   selectedFlight?: Flight | null;
   selectedFare?: 'economy' | 'business' | null;
   onDone?: (selected: any) => void;
+  currentStep: 'outbound' | 'return'; // Add currentStep prop
+  onOutboundFlightSelected: (flightData: any) => void; // Add callback for outbound selection
+  onBackToOutbound: () => void; // Add callback for going back
+  initialSelectedOutboundFlight: {
+    flight: Flight;
+    fareType: 'economy' | 'business';
+    fareDetail: any;
+  } | null;
+  // Add pagination props
+  currentPage: number;
+  totalPages: number;
+  totalFlights: number;
+  limit: number;
+  onPageChange: (page: number) => void;
 }
 
 // Modal component
@@ -36,12 +51,23 @@ const Modal: React.FC<{ open: boolean; onClose: () => void; children: React.Reac
 
 const FlightList: React.FC<FlightListProps> = ({
   flights,
+  returnFlights = [],
   isRoundTrip,
   passengers,
   onSelect,
   selectedFlight: selectedFlightProp,
   selectedFare: selectedFareProp,
   onDone,
+  currentStep, // Destructure currentStep prop
+  onOutboundFlightSelected, // Destructure callback
+  onBackToOutbound, // Destructure callback
+  initialSelectedOutboundFlight, // Destructure initialSelectedOutboundFlight prop
+  // Add pagination props
+  currentPage,
+  totalPages,
+  totalFlights,
+  limit,
+  onPageChange,
 }) => {
   
   // State to track which flight's details are open
@@ -49,7 +75,28 @@ const FlightList: React.FC<FlightListProps> = ({
   const [selectedFlightForModal, setSelectedFlightForModal] = useState<Flight | null>(null);
   const [selectedFare, setSelectedFare] = useState<null | { flightId: string, classType: 'economy' | 'business' }>(null);
   const [selectedFareIndex, setSelectedFareIndex] = useState<number | null>(null);
-  const [currentStep, setCurrentStep] = useState<'outbound' | 'return' | 'passenger-info' | 'payment-success'>('outbound');
+
+  // State cho việc lưu trữ thông tin chuyến bay đã chọn (internal state)
+  const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<{
+    flight: Flight;
+    fareType: 'economy' | 'business';
+    fareDetail: any;
+  } | null>(null);
+
+  // Use useEffect to update internal state when initialSelectedOutboundFlight prop changes
+  useEffect(() => {
+    console.log('initialSelectedOutboundFlight changed:', initialSelectedOutboundFlight);
+    if (initialSelectedOutboundFlight) {
+      setSelectedOutboundFlight(initialSelectedOutboundFlight);
+    }
+  }, [initialSelectedOutboundFlight]);
+
+  // State cho việc lưu trữ thông tin chuyến bay về đã chọn
+  const [selectedReturnFlight, setSelectedReturnFlight] = useState<{
+    flight: Flight;
+    fareType: 'economy' | 'business';
+    fareDetail: any;
+  } | null>(null);
 
   const router = useRouter();
 
@@ -70,6 +117,7 @@ const FlightList: React.FC<FlightListProps> = ({
   };
 
   const handleSelectFare = (flight: Flight, classType: 'economy' | 'business') => {
+    console.log('handleSelectFare called', { flight, classType });
     // Reset selectedFareIndex khi chuyển loại vé
     setSelectedFareIndex(null);
     
@@ -81,48 +129,108 @@ const FlightList: React.FC<FlightListProps> = ({
     );
   };
 
-  // Xử lý khi chọn loại vé cụ thể (Standard/Flexible)
-  const handleSelectSpecificFare = (flight: Flight, classType: 'economy' | 'business', fare: any) => {
-    // Lưu thông tin vé đã chọn vào localStorage
-    const bookingData = {
+  // Xử lý khi chọn loại vé cụ thể (Standard/Flexible) cho chuyến đi
+  const handleSelectOutboundFare = (flight: Flight, classType: 'economy' | 'business', fare: any) => {
+    console.log('handleSelectOutboundFare called', { flight, classType, fare, isRoundTrip });
+    const selectedData = {
       flight: flight,
       fareType: classType,
-      fareDetail: fare,
-      passengers: passengers,
-      isRoundTrip: isRoundTrip,
-      totalPrice: fare.price * passengers
+      fareDetail: fare
     };
-    localStorage.setItem('selectedBooking', JSON.stringify(bookingData));
+    
+    // Update internal state and call the parent callback
+    setSelectedOutboundFlight(selectedData);
+    onOutboundFlightSelected(selectedData);
+    setSelectedFare(null);
 
-    // Chuyển đến trang booking (không phải flight-booking)
-    router.push('/booking');
+    // Lưu vào localStorage để đảm bảo dữ liệu được giữ lại
+    localStorage.setItem('selectedOutboundFlight', JSON.stringify(selectedData));
+
+    // Nếu là one-way, chuyển đến trang booking ngay lập tức
+    if (!isRoundTrip) {
+      console.log('One-way trip detected, preparing to navigate to booking');
+      const bookingData = {
+        outboundFlight: selectedData,
+        passengers: passengers,
+        isRoundTrip: false,
+        totalPrice: fare.price * passengers
+      };
+      console.log('Saving booking data:', bookingData);
+      localStorage.setItem('selectedBooking', JSON.stringify(bookingData));
+      console.log('Navigating to /booking');
+      router.push('/booking');
+    } else {
+      console.log('Round-trip detected, waiting for return flight selection');
+    }
   };
 
-  const handleFlightSelect = (flight: Flight, fareType: 'economy' | 'business') => {
-    // Kiểm tra số ghế còn lại
-    if (flight.available_seats < passengers) {
-      alert('Không đủ ghế cho số lượng hành khách!');
-      return;
-    }
+  // Xử lý khi chọn loại vé cụ thể cho chuyến về
+  const handleSelectReturnFare = (flight: Flight, classType: 'economy' | 'business', fare: any) => {
+    console.log('handleSelectReturnFare called', { 
+      flight, 
+      classType, 
+      fare, 
+      selectedOutboundFlight,
+      currentStep 
+    });
 
-    if (isRoundTrip) {
-      if (!selectedFlightForModal) {
-        setSelectedFlightForModal(flight);
-        setSelectedFare(
-          selectedFare && selectedFare.flightId === flight.id && selectedFare.classType === fareType
-            ? null
-            : { flightId: flight.id, classType: fareType }
-        );
-        setCurrentStep('return');
-      } else {
-        setSelectedFlightForModal(null);
-        setSelectedFare(null);
-        setCurrentStep('passenger-info');
+    try {
+      const returnData = {
+        flight: flight,
+        fareType: classType,
+        fareDetail: fare
+      };
+
+      setSelectedReturnFlight(returnData);
+
+      // Lấy thông tin chuyến bay đi từ localStorage nếu không có trong state
+      let outboundFlightData = selectedOutboundFlight;
+      if (!outboundFlightData) {
+        const storedOutbound = localStorage.getItem('selectedOutboundFlight');
+        if (storedOutbound) {
+          outboundFlightData = JSON.parse(storedOutbound);
+          console.log('Retrieved outbound flight from localStorage:', outboundFlightData);
+        }
       }
-    } else {
-      setSelectedFlightForModal(flight);
-      setSelectedFare(null);
-      setCurrentStep('passenger-info');
+
+      // Kiểm tra selectedOutboundFlight
+      if (!outboundFlightData) {
+        console.error('No outbound flight selected. Current state:', {
+          selectedOutboundFlight,
+          storedOutbound: localStorage.getItem('selectedOutboundFlight'),
+          currentStep,
+          isRoundTrip
+        });
+        return;
+      }
+
+      console.log('Preparing to save round-trip booking data');
+      const bookingData = {
+        outboundFlight: outboundFlightData,
+        returnFlight: returnData,
+        passengers: passengers,
+        isRoundTrip: true,
+        totalPrice: (outboundFlightData.fareDetail.price + fare.price) * passengers
+      };
+      console.log('Saving booking data:', bookingData);
+      localStorage.setItem('selectedBooking', JSON.stringify(bookingData));
+      console.log('Navigating to /booking');
+      router.push('/booking');
+    } catch (error) {
+      console.error('Error in handleSelectReturnFare:', error);
+    }
+  };
+
+  // Xác định danh sách chuyến bay hiện tại
+  const currentFlights = currentStep === 'outbound' ? flights : returnFlights;
+  
+  // Xác định hàm xử lý chọn vé phù hợp
+  const handleSelectSpecificFare = (flight: Flight, classType: 'economy' | 'business', fare: any) => {
+    console.log('handleSelectSpecificFare called', { flight, classType, fare, currentStep });
+    if (currentStep === 'outbound') {
+      handleSelectOutboundFare(flight, classType, fare);
+    } else if (currentStep === 'return') {
+      handleSelectReturnFare(flight, classType, fare);
     }
   };
 
@@ -130,37 +238,38 @@ const FlightList: React.FC<FlightListProps> = ({
     <div className={styles.flightListContainer}>
       <div className={styles.flightListHeader}>
         <h2 className={styles.listTitle}>
-          Chọn chuyến bay đi
+          {currentStep === 'outbound' ? 'Chọn chuyến bay đi' : 'Chọn chuyến bay về'}
           <span className={styles.subtitle}>
-            Vui lòng chọn chuyến bay đi của bạn.
+            {currentStep === 'outbound' 
+              ? 'Vui lòng chọn chuyến bay đi của bạn.' 
+              : 'Vui lòng chọn chuyến bay về của bạn.'
+            }
           </span>
         </h2>
       </div>
 
-      {flights.map((flight) => {
+      {currentFlights.map((flight) => {
         // Define fareDetails inside the map loop to access flight data
         const fareDetails = {
           economy: [
             {
               name: 'Phổ Thông Tiêu Chuẩn',
-              price: flight.price.economy, // Use actual economy price
+              price: flight.price.economy,
               change: 'Phí đổi vé tối đa 860.000 VND mỗi hành khách',
               refund: 'Phí hoàn vé tối đa 860.000 VND mỗi hành khách',
               baggage: '1 x 23 kg',
               carryon: 'Không quá 12kg',
             },
-            // Add other economy fares if needed
           ],
           business: [
             {
               name: 'Thương Gia Tiêu Chuẩn',
-              price: flight.price.business, // Use actual business price
+              price: flight.price.business,
               change: 'Miễn phí đổi vé',
               refund: 'Miễn phí hoàn vé',
               baggage: '2 x 32 kg',
               carryon: 'Không quá 18kg',
             },
-            // Add other business fares if needed
           ],
         };
 
@@ -258,7 +367,10 @@ const FlightList: React.FC<FlightListProps> = ({
                         className={styles.fareDetailSelectBtn}
                         onClick={() => handleSelectSpecificFare(flight, selectedFare.classType, fare)}
                       >
-                        Chọn
+                        {currentStep === 'outbound' 
+                          ? (isRoundTrip ? 'Tiếp tục chọn chuyến về' : 'Chọn') 
+                          : 'Hoàn tất chọn vé'
+                        }
                       </button>
                     </div>
                   ))}
@@ -271,6 +383,40 @@ const FlightList: React.FC<FlightListProps> = ({
           </div>
         );
       })}
+
+      {/* Pagination - hiển thị cho cả chuyến đi và chuyến về */}
+      <div className={styles.pagination}>
+        <div className={styles.paginationInfo}>
+          Hiển thị {((currentPage - 1) * limit) + 1} đến {Math.min(currentPage * limit, totalFlights)} trong tổng số {totalFlights} chuyến bay
+        </div>
+        <div className={styles.paginationControls}>
+          <button
+            className={`${styles.pageButton} ${currentPage === 1 ? styles.disabled : ''}`}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`${styles.pageButton} ${currentPage === page ? styles.active : ''}`}
+              onClick={() => onPageChange(page)}
+            >
+              {page}
+            </button>
+          ))}
+          
+          <button
+            className={`${styles.pageButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      </div>
 
       {/* Modal popup for flight details */}
       <Modal open={!!selectedFlightForModal} onClose={handleCloseDetails}>

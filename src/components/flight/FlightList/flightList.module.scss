@@ -679,3 +679,123 @@
     align-items: center;
     justify-content: space-between;
 }
+
+.selectedOutboundInfo {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+
+    h3 {
+        margin: 0 0 10px 0;
+        color: #495057;
+        font-size: 1.1rem;
+    }
+
+    .flightInfo {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .route {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #212529;
+
+            .planeIcon {
+                color: #0d6efd;
+                transform: rotate(90deg);
+            }
+        }
+
+        .details {
+            display: flex;
+            gap: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+
+            span {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+        }
+    }
+}
+.pagination {
+    margin-top: 2rem;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .paginationInfo {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .paginationControls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .pageButton {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+
+            &:hover:not(.disabled) {
+                background: #f7fafc;
+                border-color: #cbd5e0;
+
+            }
+
+            &.active {
+                background: #15a3ef;
+                color: white;
+                border-color: #15a3ef;
+                font-weight: 500;
+
+                &:hover {
+                    background: #66c3f4;
+                }
+            }
+
+            &.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                background: #f7fafc;
+            }
+        }
+    }
+}
+// Responsive adjustments
+@media (max-width: 768px) {
+    .pagination {
+        .paginationControls {
+            .pageButton {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+    }
+}
