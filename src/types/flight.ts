@@ -32,6 +32,7 @@ export interface Flight {
     };
     aircraft_type?: string;
     airline?: string;
+    departure_date?: string;
 }
 
 export interface FlightSearchParams {
