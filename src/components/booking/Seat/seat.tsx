@@ -16,6 +16,8 @@ interface SeatSelectionProps {
   onConfirm: (selectedSeats: string[]) => void;
   passengerCount: number;
   flightNumber: string;
+  isRoundTrip?: boolean;
+  returnFlightNumber?: string;
 }
 
 const Seat: React.FC<SeatSelectionProps> = ({
@@ -24,6 +26,8 @@ const Seat: React.FC<SeatSelectionProps> = ({
   onConfirm,
   passengerCount,
   flightNumber,
+  isRoundTrip,
+  returnFlightNumber,
 }) => {
   // Mock data cho sơ đồ ghế
   const generateSeats = (): Seat[] => {
