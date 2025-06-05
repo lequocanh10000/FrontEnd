@@ -1,0 +1,31 @@
+.adminLayout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.mainContent {
+    flex: 1;
+    margin-left: 250px;
+    min-height: 100vh;
+}
+
+.contentArea {
+    padding: 2rem;
+}
+
+.dashboardContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.chartsSection {
+    margin-top: 2rem;
+}

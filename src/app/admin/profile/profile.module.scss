@@ -1,0 +1,102 @@
+@use "sass:color";
+
+.profileContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+
+    h1 {
+        margin-bottom: 2rem;
+        color: #333;
+    }
+}
+
+.section {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    h2 {
+        margin-bottom: 1.5rem;
+        color: #333;
+        font-size: 1.2rem;
+    }
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+
+    label {
+        width: 150px;
+        color: #666;
+    }
+
+    input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+
+        &:focus {
+            outline: none;
+            border-color: #15a3ef;
+        }
+    }
+
+    span {
+        flex: 1;
+        color: #333;
+    }
+}
+
+.primaryButton {
+    background-color: #15a3ef;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+        background-color: color.adjust(#15a3ef, $lightness: -10%);
+    }
+}
+
+.accountActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.deleteButton {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+        background-color: color.adjust(#ff4d4d, $lightness: -10%);
+    }
+}
+
+.logoutButton {
+    background-color: #15a3ef;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+        background-color: color.adjust(#15a3ef, $lightness: -10%);
+    }
+}

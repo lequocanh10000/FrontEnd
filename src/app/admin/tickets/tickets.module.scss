@@ -1,0 +1,93 @@
+@use "sass:color";
+
+.ticketsContainer {
+    padding: 2rem;
+}
+
+.header {
+    margin-bottom: 2rem;
+
+    h1 {
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+}
+
+.searchBar {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 600px;
+
+    input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+
+        &:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+    }
+}
+
+.searchButton {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: color.adjust(#2196F3, $lightness: -10%);
+    }
+}
+
+.tableContainer {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.ticketsTable {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        color: #666;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    tr:hover {
+        background-color: #f8f9fa;
+    }
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    color: #2196F3;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &.delete {
+        color: #ff4d4d;
+    }
+}
