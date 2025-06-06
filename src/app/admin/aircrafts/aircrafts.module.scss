@@ -1,6 +1,4 @@
-@use "sass:color";
-
-.ticketsContainer {
+.aircraftsContainer {
     padding: 2rem;
     background-color: #f5f5f5;
     min-height: 100vh;
@@ -16,62 +14,61 @@
             color: #333;
         }
 
-        .actions {
+    }
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        .searchBar {
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            background: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-            .searchBar {
-                display: flex;
-                align-items: center;
-                background: white;
-                border-radius: 4px;
+            input {
+                border: none;
+                outline: none;
                 padding: 0.5rem;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-                input {
-                    border: none;
-                    outline: none;
-                    padding: 0.5rem;
-                    width: 300px;
-                    font-size: 0.9rem;
-                }
-
-                .searchButton {
-                    background: none;
-                    border: none;
-                    color: #666;
-                    cursor: pointer;
-                    padding: 0.5rem;
-                }
+                width: 300px;
+                font-size: 0.9rem;
             }
 
-            .addButton {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                background: #007bff;
-                color: white;
+            .searchButton {
+                background: none;
                 border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
+                color: #666;
                 cursor: pointer;
-                font-weight: 500;
-                transition: background-color 0.2s;
+                padding: 0.5rem;
+            }
+        }
 
-                &:hover {
-                    background: #0056b3;
-                }
+        .addButton {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background: #ff3333;
             }
         }
     }
-
     .tableContainer {
         background: white;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         overflow: hidden;
 
-        .ticketsTable {
+        .aircraftsTable {
             width: 100%;
             border-collapse: collapse;
 
@@ -145,8 +142,7 @@
                     font-weight: 500;
                 }
 
-                input,
-                select {
+                input {
                     width: 100%;
                     padding: 0.5rem;
                     border: 1px solid #ced4da;
@@ -164,7 +160,7 @@
             .submitButton {
                 width: 100%;
                 padding: 0.75rem;
-                background: #007bff;
+                background: #15a3ef;
                 color: white;
                 border: none;
                 border-radius: 4px;
@@ -173,50 +169,9 @@
                 transition: background-color 0.2s;
 
                 &:hover {
-                    background: #0056b3;
+                    background: #66c3f4;
                 }
             }
-        }
-    }
-
-    .editButton,
-    .deleteButton {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.1rem;
-        margin-right: 0.5rem;
-
-        &:hover {
-            color: #0056b3;
-        }
-    }
-
-    .deleteButton {
-        &:hover {
-            color: #dc3545;
-        }
-    }
-
-    .status {
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.875rem;
-        font-weight: 500;
-
-        &.booked {
-            background-color: #e3f2fd;
-            color: #1976d2;
-        }
-
-        &.cancelled {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
-
-        &.checked_in {
-            background-color: #e8f5e9;
-            color: #2e7d32;
         }
     }
 }
