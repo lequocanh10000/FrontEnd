@@ -126,6 +126,9 @@ const FlightBookingApp: React.FC = () => {
   // State để kiểm soát việc hiển thị popup chọn ghế
   const [isSeatModalOpen, setIsSeatModalOpen] = useState(false);
 
+  // State để kiểm soát trạng thái loading
+  const [isLoading, setIsLoading] = useState(false);
+
   // Effect để tải dữ liệu booking từ localStorage khi component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -176,13 +179,80 @@ const FlightBookingApp: React.FC = () => {
   };
 
   // Hàm mới để xác nhận booking và chuyển sang thanh toán
-  const handleReviewConfirm = () => {
-     // Simulate payment processing
-     setTimeout(() => {
-      const randomBookingCode = 'VN' + Math.random().toString(36).substr(2, 6).toUpperCase();
-      setBookingCode(randomBookingCode);
+  const handleReviewConfirm = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get the first passenger data since we're handling single passenger case
+      const passenger = passengerData[0];
+      const flightDetails = getFlightDetails();
+      
+      if (!selectedOutboundFlight) {
+        throw new Error('Không tìm thấy thông tin chuyến bay');
+      }
+
+      if (!passenger) {
+        throw new Error('Không tìm thấy thông tin hành khách');
+      }
+
+      if (!selectedSeats.length) {
+        throw new Error('Vui lòng chọn ghế');
+      }
+
+      // Format date to YYYY-MM-DD
+      const formattedBirthDate = new Date(passenger.birthDate).toISOString().split('T')[0];
+      
+      // Prepare the booking data
+      const bookingData = {
+        user_id: 11, // This should come from your authentication system
+        flight_id: selectedOutboundFlight.flight_id,
+        seat_id: parseInt(selectedSeats[0]), // Convert seat string to number
+        total_amount: flightDetails[0].price,
+        price: flightDetails[0].price,
+        status: "confirmed",
+        customer: {
+          first_name: passenger.firstName,
+          last_name: passenger.lastName,
+          address: passenger.address,
+          gender: passenger.gender,
+          date_of_birth: formattedBirthDate,
+          id_card_number: passenger.idNumber,
+          status: "confirmed"
+        }
+      };
+
+      console.log('Sending booking data:', bookingData); // Debug log
+
+      // Make the API call
+      const response = await fetch('http://localhost:4000/bookings/book', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Đặt vé thất bại');
+      }
+      
+      // Set booking code from response
+      setBookingCode(responseData.bookingCode || 'VN' + Math.random().toString(36).substr(2, 6).toUpperCase());
+      
+      // Clear booking data from localStorage
+      localStorage.removeItem('selectedBooking');
+      
+      // Move to success step
       setCurrentStep('payment-success');
-    }, 1000);
+    } catch (error: any) {
+      console.error('Error making booking:', error);
+      alert(error.message || 'Có lỗi xảy ra khi đặt vé. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // Hàm xử lý quay lại bước trước (điều chỉnh cho 3 bước)

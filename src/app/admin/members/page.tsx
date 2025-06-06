@@ -39,10 +39,9 @@ export default function MembersPage() {
         <table className={styles.membersTable}>
           <thead>
             <tr>
-              <th>Tên</th>
-              <th>Email</th>
-              <th>Ngày đăng ký</th>
-              <th>Hành động</th>
+              <th>TÊN</th>
+              <th>EMAIL</th>
+              <th>HÀNH ĐỘNG</th>
             </tr>
           </thead>
           <tbody>
