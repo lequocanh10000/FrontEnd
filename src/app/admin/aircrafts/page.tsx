@@ -4,6 +4,21 @@ import { useState, useEffect } from 'react';
 import styles from './aircrafts.module.scss';
 import { FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
 interface Aircraft {
   aircraft_id: number;
   manufacturer: string;
@@ -30,7 +45,7 @@ export default function AircraftsPage() {
 
   const fetchAircrafts = async () => {
     try {
-      const response = await fetch('/api/aircrafts');
+      const response = await fetch('http://localhost:4000/aircrafts');
       const data = await response.json();
       setAircrafts(data);
     } catch (error) {
@@ -41,7 +56,7 @@ export default function AircraftsPage() {
   const handleAddAircraft = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/aircrafts', {
+      const response = await fetchWithAuth('http://localhost:4000/aircrafts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
