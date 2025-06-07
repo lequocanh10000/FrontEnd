@@ -4,6 +4,22 @@ import { useState, useEffect } from 'react';
 import styles from './tickets.module.scss';
 import { FaSearch } from 'react-icons/fa';
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
+
 interface Ticket {
   ticket_id: number;
   booking_id: number;
@@ -25,7 +41,9 @@ export default function TicketsPage() {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('/api/tickets');
+      const response = await fetchWithAuth('http://localhost:4000/bookings/ticket', {
+         method: 'GET',
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -37,9 +55,9 @@ export default function TicketsPage() {
   };
 
   const filteredTickets = tickets.filter(ticket =>
-    ticket.ticket_id.toString().includes(searchTerm) ||
-    ticket.booking_id.toString().includes(searchTerm) ||
-    ticket.flight_id.toString().includes(searchTerm)
+    ticket.ticket_id?.toString().includes(searchTerm) ||
+    ticket.booking_id?.toString().includes(searchTerm) ||
+    ticket.flight_id?.toString().includes(searchTerm)
   );
 
   return (
@@ -82,7 +100,7 @@ export default function TicketsPage() {
                 <td>{ticket.flight_id}</td>
                 <td>{ticket.seat_id}</td>
                 <td>{ticket.customer_id}</td>
-                <td>{ticket.price.toLocaleString('vi-VN')} VNĐ</td>
+                <td>{ticket.price} VNĐ</td>
                 <td>
                   <span className={`${styles.status} ${styles[ticket.status]}`}>
                     {ticket.status === 'booked' ? 'Đã đặt' : 
