@@ -4,6 +4,21 @@ import { useState, useEffect } from 'react';
 import styles from './bookings.module.scss';
 import { FaSearch } from 'react-icons/fa';
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
 interface Booking {
   booking_id: number;
   user_id: number;
@@ -23,7 +38,10 @@ export default function BookingsPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/bookings');
+      const response = await fetchWithAuth('http://localhost:4000/bookings', {
+         method: 'GET',
+      });
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -35,8 +53,8 @@ export default function BookingsPage() {
   };
 
   const filteredBookings = bookings.filter(booking =>
-    booking.booking_id.toString().includes(searchTerm) ||
-    booking.user_id.toString().includes(searchTerm)
+    booking.booking_id?.toString().includes(searchTerm) ||
+    booking.user_id?.toString().includes(searchTerm)
   );
 
   // Format date to Vietnamese locale
@@ -95,7 +113,7 @@ export default function BookingsPage() {
                      'Hoàn thành'}
                   </span>
                 </td>
-                <td>{booking.total_amount.toLocaleString('vi-VN')} VNĐ</td>
+                <td>{booking.total_amount} VNĐ</td>
               </tr>
             ))}
           </tbody>
