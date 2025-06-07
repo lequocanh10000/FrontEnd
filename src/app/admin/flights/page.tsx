@@ -4,6 +4,22 @@ import { useState, useEffect } from 'react';
 import styles from './flights.module.scss';
 import { FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
+
 interface Flight {
   flight_id: number;
   aircraft_id: number;
@@ -44,7 +60,7 @@ export default function FlightsPage() {
 
   const fetchFlights = async () => {
     try {
-      const response = await fetch('/api/flights');
+      const response = await fetch('http://localhost:4000/flights/searchAll');
       const data = await response.json();
       setFlights(data);
     } catch (error) {
@@ -55,11 +71,9 @@ export default function FlightsPage() {
   const handleAddFlight = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/flights', {
+      const response = await fetchWithAuth('http://localhost:4000/flights/new', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        
         body: JSON.stringify(newFlight),
       });
 
@@ -89,11 +103,8 @@ export default function FlightsPage() {
     if (!selectedFlight) return;
 
     try {
-      const response = await fetch(`/api/flights/${selectedFlight.flight_id}`, {
+      const response = await fetchWithAuth(`http://localhost:4000/flights/update/${selectedFlight.flight_id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(selectedFlight),
       });
 
@@ -110,9 +121,11 @@ export default function FlightsPage() {
   const handleDeleteFlight = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa chuyến bay này?')) {
       try {
-        const response = await fetch(`/api/flights/${id}`, {
+        const response = await fetchWithAuth(`http://localhost:4000/flights/del/${id}`, {
           method: 'DELETE',
         });
+
+        alert(`Xoá flight ID:${id}`);
 
         if (response.ok) {
           fetchFlights();
