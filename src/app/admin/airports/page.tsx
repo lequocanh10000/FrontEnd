@@ -12,6 +12,22 @@ interface Airport {
   country: string;
 }
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
+
 export default function AirportsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -32,7 +48,7 @@ export default function AirportsPage() {
 
   const fetchAirports = async () => {
     try {
-      const response = await fetch('/api/airports');
+      const response = await fetch('http://localhost:4000/airports');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
