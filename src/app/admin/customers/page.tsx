@@ -4,12 +4,28 @@ import { useState, useEffect } from 'react';
 import styles from './customers.module.scss';
 import { FaSearch } from 'react-icons/fa';
 
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    ...(options.headers || {}),
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
+
 interface Customer {
   customer_id: number;
   first_name: string;
   last_name: string;
-  email: string;
-  phone: string;
+  address: string;
+  id_card_number: string;
 }
 
 export default function CustomersPage() {
@@ -23,7 +39,9 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers');
+      const response = await fetchWithAuth('http://localhost:4000/customers', {
+         method: 'GET',
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -36,8 +54,8 @@ export default function CustomersPage() {
 
   const filteredCustomers = customers.filter(customer =>
     customer.customer_id.toString().includes(searchTerm) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
+    customer.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.id_card_number.includes(searchTerm) ||
     `${customer.first_name} ${customer.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -76,8 +94,8 @@ export default function CustomersPage() {
             <tr>
               <th>ID KHÁCH HÀNG</th>
               <th>HỌ VÀ TÊN</th>
-              <th>EMAIL</th>
-              <th>SỐ ĐIỆN THOẠI</th>
+              <th>ĐỊA CHỈ</th>
+              <th>MÃ SỐ ĐỊNH DANH</th>
             </tr>
           </thead>
           <tbody>
@@ -85,8 +103,8 @@ export default function CustomersPage() {
               <tr key={customer.customer_id}>
                 <td>{customer.customer_id}</td>
                 <td>{`${customer.first_name} ${customer.last_name}`}</td>
-                <td>{customer.email}</td>
-                <td>{customer.phone}</td>
+                <td>{customer.address}</td>
+                <td>{customer.id_card_number}</td>
 
               </tr>
             ))}
